@@ -29,6 +29,17 @@ class MainViewModel(
     private val _state = MutableStateFlow(PdfCombinerState())
     val state: StateFlow<PdfCombinerState> = _state.asStateFlow()
 
+    fun handleIntent(intent: PdfCombinerIntent) {
+        when (intent) {
+            is PdfCombinerIntent.AddPdfs -> addPdfs()
+            is PdfCombinerIntent.RemovePdf -> removePdf(intent.pdfFile)
+            is PdfCombinerIntent.ClearAll -> clearAll()
+            is PdfCombinerIntent.SetOutputFileName -> setOutputFileName(intent.name)
+            is PdfCombinerIntent.CombinePdfs -> combinePdfs()
+            is PdfCombinerIntent.ClearMessages -> clearMessages()
+        }
+    }
+
     private fun addPdfs() {
         val fileChooser = JFileChooser().apply {
             isMultiSelectionEnabled = true
