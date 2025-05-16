@@ -42,6 +42,27 @@ class MainViewModel(
         }
     }
 
+    private fun removePdf(pdfFile: PdfFile) {
+        _state.value = _state.value.copy(
+            pdfFiles = _state.value.pdfFiles.filter { it.id != pdfFile.id }
+        )
+    }
+
+    private fun clearAll() {
+        _state.value = _state.value.copy(pdfFiles = emptyList())
+    }
+
+    private fun setOutputFileName(name: String) {
+        _state.value = _state.value.copy(outputFileName = name)
+    }
+
+    private fun clearMessages() {
+        _state.value = _state.value.copy(
+            errorMessage = null,
+            successMessage = null
+        )
+    }
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
