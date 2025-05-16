@@ -25,6 +25,23 @@ class MainViewModel(
     private val _state = MutableStateFlow(PdfCombinerState())
     val state: StateFlow<PdfCombinerState> = _state.asStateFlow()
 
+    private fun addPdfs() {
+        val fileChooser = JFileChooser().apply {
+            isMultiSelectionEnabled = true
+            fileFilter = FileNameExtensionFilter("PDF files", "pdf")
+        }
+
+        val result = fileChooser.showOpenDialog(null)
+        if (result == JFileChooser.APPROVE_OPTION) {
+            val selectedFiles = fileChooser.selectedFiles
+            val newPdfFiles = selectedFiles.map { PdfFile.from(it) }
+            _state.value = _state.value.copy(
+                pdfFiles = _state.value.pdfFiles + newPdfFiles,
+                errorMessage = null
+            )
+        }
+    }
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
