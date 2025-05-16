@@ -17,6 +17,22 @@ fun App(
     viewModel: MainViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pdfState by viewModel.state.collectAsState()
+
+    pdfState.errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            delay(5000)
+            viewModel.handleIntent(PdfCombinerIntent.ClearMessages)
+        }
+    }
+
+    pdfState.successMessage?.let { message ->
+        LaunchedEffect(message) {
+            delay(5000)
+            viewModel.handleIntent(PdfCombinerIntent.ClearMessages)
+        }
+    }
+
     AppTheme(darkTheme = uiState.darkMode) {
 
     }
