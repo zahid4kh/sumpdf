@@ -42,6 +42,47 @@ class MainViewModel(
         }
     }
 
+    private fun combinePdfs() {
+        if (_state.value.pdfFiles.isEmpty()) {
+            _state.value = _state.value.copy(errorMessage = "Please add at least one PDF file.")
+            return
+        }
+
+        _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+
+        try {
+            val fileChooser = JFileChooser().apply {
+                selectedFile = File("${_state.value.outputFileName}.pdf")
+                fileFilter = FileNameExtensionFilter("PDF files", "pdf")
+            }
+
+            val result = fileChooser.showSaveDialog(null)
+            if (result == JFileChooser.APPROVE_OPTION) {
+                val outputFile = fileChooser.selectedFile
+                val merger = PDFMergerUtility()
+
+                _state.value.pdfFiles.forEach { pdfFile ->
+                    merger.addSource(File(pdfFile.path))
+                }
+
+                merger.destinationFileName = outputFile.absolutePath
+                merger.mergeDocuments(null)
+
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    successMessage = "PDFs combined successfully!\nSaved to: ${outputFile.absolutePath}"
+                )
+            } else {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        } catch (e: Exception) {
+            _state.value = _state.value.copy(
+                isLoading = false,
+                errorMessage = "Failed to combine PDFs: ${e.message}"
+            )
+        }
+    }
+
     private fun removePdf(pdfFile: PdfFile) {
         _state.value = _state.value.copy(
             pdfFiles = _state.value.pdfFiles.filter { it.id != pdfFile.id }
