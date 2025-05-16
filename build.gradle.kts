@@ -34,6 +34,8 @@ dependencies {
 
     // PDFbox for merger utility
     implementation("org.apache.pdfbox:pdfbox:3.0.0")
+
+    implementation("com.github.zahid4kh:deskit:1.1.1")
 }
 
 
