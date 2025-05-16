@@ -77,10 +77,7 @@ fun App(
                 label = { Text("Output filename") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF4A90E2),
-                    cursorColor = Color(0xFF4A90E2)
-                )
+                shape = MaterialTheme.shapes.large
             )
 
             pdfState.errorMessage?.let { message ->
