@@ -31,6 +31,9 @@ dependencies {
 
     // Koin for dependency injection
     implementation(libs.koin.core)
+
+    // PDFbox for merger utility
+    implementation("org.apache.pdfbox:pdfbox:3.0.0")
 }
 
 
