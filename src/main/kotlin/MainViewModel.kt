@@ -22,6 +22,9 @@ class MainViewModel(
         }
     }
 
+    private val _state = MutableStateFlow(PdfCombinerState())
+    val state: StateFlow<PdfCombinerState> = _state.asStateFlow()
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
