@@ -15,6 +15,7 @@ group = "zahid4kh.sumpdf"
 version = "1.0.0"
 
 repositories {
+    maven { url = uri("https://jitpack.io") }
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
