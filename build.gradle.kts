@@ -25,6 +25,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
+    implementation(compose.components.resources)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
@@ -43,6 +44,11 @@ dependencies {
 
 }
 
+compose.resources{
+    generateResClass = auto
+    packageOfResClass = "sumpdf.resources"
+    publicResClass = false
+}
 
 compose.desktop {
     application {
