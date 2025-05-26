@@ -261,3 +261,11 @@ fun App(
         )
     }
 }
+
+
+@Preview
+@Composable
+fun AppPreview(){
+    val viewModel = MainViewModel(database = Database())
+    App(viewModel)
+}
