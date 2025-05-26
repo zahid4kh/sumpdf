@@ -103,6 +103,11 @@ fun App(
             PdfListArea(
                 pdfFiles = pdfState.pdfFiles,
                 onRemovePdf = { viewModel.handleIntent(PdfCombinerIntent.RemovePdf(it)) },
+                onFilesDropped = { files ->
+                    files.forEach { file ->
+                        viewModel.handleIntent(PdfCombinerIntent.AddPdf(file))
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
 
