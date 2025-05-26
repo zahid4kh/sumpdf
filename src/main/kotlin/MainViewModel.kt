@@ -43,6 +43,7 @@ class MainViewModel(
             is PdfCombinerIntent.HideSuccessDialog -> hideSuccessDialog()
             is PdfCombinerIntent.ShowErrorDialog -> showErrorDialog()
             is PdfCombinerIntent.HideErrorDialog -> hideErrorDialog()
+            is PdfCombinerIntent.ReorderPdfs -> reorderPdfs(intent.fromIndex, intent.toIndex)
         }
     }
 
@@ -129,6 +130,15 @@ class MainViewModel(
 
     private fun clearAll() {
         _state.value = _state.value.copy(pdfFiles = emptyList())
+    }
+
+    private fun reorderPdfs(fromIndex: Int, toIndex: Int) {
+        val currentList = _state.value.pdfFiles.toMutableList()
+        if (fromIndex in currentList.indices && toIndex in currentList.indices) {
+            val item = currentList.removeAt(fromIndex)
+            currentList.add(toIndex, item)
+            _state.value = _state.value.copy(pdfFiles = currentList)
+        }
     }
 
     private fun setOutputFileName(name: String) {

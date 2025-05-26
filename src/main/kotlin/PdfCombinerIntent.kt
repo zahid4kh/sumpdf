@@ -3,6 +3,7 @@ sealed class PdfCombinerIntent {
     object HideFileChooser : PdfCombinerIntent()
     data class AddPdf(val file: java.io.File) : PdfCombinerIntent()
     data class RemovePdf(val pdfFile: PdfFile) : PdfCombinerIntent()
+    data class ReorderPdfs(val fromIndex: Int, val toIndex: Int) : PdfCombinerIntent()
     object ClearAll : PdfCombinerIntent()
     data class SetOutputFileName(val name: String) : PdfCombinerIntent()
     object ShowFileSaver : PdfCombinerIntent()
