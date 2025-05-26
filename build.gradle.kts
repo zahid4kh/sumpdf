@@ -36,7 +36,7 @@ dependencies {
     // PDFbox for merger utility
     implementation("org.apache.pdfbox:pdfbox:3.0.0")
 
-    implementation("com.github.zahid4kh:deskit:1.1.1")
+    implementation("com.github.zahid4kh:deskit:1.2.0")
 
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("org.slf4j:slf4j-simple:2.0.12")
