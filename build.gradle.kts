@@ -60,7 +60,7 @@ compose.desktop {
 
             linux{
                 shortcut = true
-                iconFile.set(project.file("icons/compose.png"))
+                iconFile.set(project.file("icons/sumpdf.png"))
             }
 
             windows{
