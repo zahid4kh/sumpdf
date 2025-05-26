@@ -2,9 +2,21 @@ package theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.Font
+import sumpdf.resources.Res
+import sumpdf.resources.Roboto_Bold
+import sumpdf.resources.Roboto_Italic
+import sumpdf.resources.Roboto_Regular
+import theme.Typography
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -69,11 +81,41 @@ fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val robotoFontFamily = FontFamily(
+        Font(resource = Res.font.Roboto_Regular, weight = FontWeight.Normal, style = FontStyle.Normal),
+        Font(resource = Res.font.Roboto_Italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+        Font(resource = Res.font.Roboto_Bold, weight = FontWeight.Bold, style = FontStyle.Normal)
+
+    )
+    val appTypography =
+        Typography(
+            bodyLarge = TextStyle(
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                letterSpacing = 0.5.sp
+            ),
+            titleLarge = TextStyle(
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                lineHeight = 28.sp,
+                letterSpacing = 0.sp
+            ),
+            labelSmall = TextStyle(
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 11.sp,
+                lineHeight = 16.sp,
+                letterSpacing = 0.5.sp
+            )
+        )
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = appTypography,
         content = content
     )
 }
