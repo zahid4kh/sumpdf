@@ -1,8 +1,16 @@
 sealed class PdfCombinerIntent {
-    object AddPdfs : PdfCombinerIntent()
+    object ShowFileChooser : PdfCombinerIntent()
+    object HideFileChooser : PdfCombinerIntent()
+    data class AddPdf(val file: java.io.File) : PdfCombinerIntent()
     data class RemovePdf(val pdfFile: PdfFile) : PdfCombinerIntent()
     object ClearAll : PdfCombinerIntent()
     data class SetOutputFileName(val name: String) : PdfCombinerIntent()
+    object ShowFileSaver : PdfCombinerIntent()
+    object HideFileSaver : PdfCombinerIntent()
     object CombinePdfs : PdfCombinerIntent()
     object ClearMessages : PdfCombinerIntent()
+    object ShowSuccessDialog : PdfCombinerIntent()
+    object HideSuccessDialog : PdfCombinerIntent()
+    object ShowErrorDialog : PdfCombinerIntent()
+    object HideErrorDialog : PdfCombinerIntent()
 }

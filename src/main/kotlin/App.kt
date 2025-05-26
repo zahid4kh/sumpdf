@@ -16,7 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import theme.AppTheme
-
+import dialogs.InfoDialog
+import dialogs.file.FileChooserDialog
+import dialogs.file.FileSaverDialog
 
 @Composable
 @Preview
@@ -109,7 +111,7 @@ fun App(
                 horizontalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 Button(
-                    onClick = { viewModel.handleIntent(PdfCombinerIntent.AddPdfs) },
+                    onClick = { viewModel.handleIntent(PdfCombinerIntent.ShowFileChooser) },
                     modifier = Modifier.height(45.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4A90E2),
@@ -135,7 +137,7 @@ fun App(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
-                    onClick = { viewModel.handleIntent(PdfCombinerIntent.CombinePdfs) },
+                    onClick = { viewModel.handleIntent(PdfCombinerIntent.ShowFileSaver) },
                     modifier = Modifier.height(45.dp),
                     enabled = pdfState.pdfFiles.isNotEmpty() && !pdfState.isLoading,
                     colors = ButtonDefaults.buttonColors(
@@ -163,5 +165,51 @@ fun App(
             }
         }
     }
-}
 
+    if (uiState.showFileChooser) {
+        FileChooserDialog(
+            title = "Select PDF File",
+            allowedExtensions = listOf("pdf"),
+            onFileSelected = { file ->
+                viewModel.handleIntent(PdfCombinerIntent.AddPdf(file))
+            },
+            onCancel = {
+                viewModel.handleIntent(PdfCombinerIntent.HideFileChooser)
+            }
+        )
+    }
+
+    if (uiState.showFileSaver) {
+        FileSaverDialog(
+            title = "Save Combined PDF",
+            suggestedFileName = pdfState.outputFileName,
+            extension = ".pdf",
+            onSave = { file ->
+                viewModel.onSaveFileSelected(file)
+            },
+            onCancel = {
+                viewModel.handleIntent(PdfCombinerIntent.HideFileSaver)
+            }
+        )
+    }
+
+    if (uiState.showSuccessDialog) {
+        InfoDialog(
+            title = "Success!",
+            message = pdfState.successMessage ?: "PDFs combined successfully!",
+            onClose = {
+                viewModel.handleIntent(PdfCombinerIntent.HideSuccessDialog)
+            }
+        )
+    }
+
+    if (uiState.showErrorDialog) {
+        InfoDialog(
+            title = "Error",
+            message = pdfState.errorMessage ?: "An error occurred.",
+            onClose = {
+                viewModel.handleIntent(PdfCombinerIntent.HideErrorDialog)
+            }
+        )
+    }
+}

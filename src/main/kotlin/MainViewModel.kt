@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import java.io.File
-import javax.swing.JFileChooser
-import javax.swing.filechooser.FileNameExtensionFilter
 
 class MainViewModel(
     private val database: Database,
@@ -31,71 +29,96 @@ class MainViewModel(
 
     fun handleIntent(intent: PdfCombinerIntent) {
         when (intent) {
-            is PdfCombinerIntent.AddPdfs -> addPdfs()
+            is PdfCombinerIntent.ShowFileChooser -> showFileChooser()
+            is PdfCombinerIntent.HideFileChooser -> hideFileChooser()
+            is PdfCombinerIntent.AddPdf -> addPdf(intent.file)
             is PdfCombinerIntent.RemovePdf -> removePdf(intent.pdfFile)
             is PdfCombinerIntent.ClearAll -> clearAll()
             is PdfCombinerIntent.SetOutputFileName -> setOutputFileName(intent.name)
+            is PdfCombinerIntent.ShowFileSaver -> showFileSaver()
+            is PdfCombinerIntent.HideFileSaver -> hideFileSaver()
             is PdfCombinerIntent.CombinePdfs -> combinePdfs()
             is PdfCombinerIntent.ClearMessages -> clearMessages()
+            is PdfCombinerIntent.ShowSuccessDialog -> showSuccessDialog()
+            is PdfCombinerIntent.HideSuccessDialog -> hideSuccessDialog()
+            is PdfCombinerIntent.ShowErrorDialog -> showErrorDialog()
+            is PdfCombinerIntent.HideErrorDialog -> hideErrorDialog()
         }
     }
 
-    private fun addPdfs() {
-        val fileChooser = JFileChooser().apply {
-            isMultiSelectionEnabled = true
-            fileFilter = FileNameExtensionFilter("PDF files", "pdf")
-        }
+    private fun showFileChooser() {
+        _uiState.value = _uiState.value.copy(showFileChooser = true)
+    }
 
-        val result = fileChooser.showOpenDialog(null)
-        if (result == JFileChooser.APPROVE_OPTION) {
-            val selectedFiles = fileChooser.selectedFiles
-            val newPdfFiles = selectedFiles.map { PdfFile.from(it) }
+    private fun hideFileChooser() {
+        _uiState.value = _uiState.value.copy(showFileChooser = false)
+    }
+
+    private fun addPdf(file: File) {
+        if (file.extension.lowercase() == "pdf") {
+            val newPdfFile = PdfFile.from(file)
             _state.value = _state.value.copy(
-                pdfFiles = _state.value.pdfFiles + newPdfFiles,
+                pdfFiles = _state.value.pdfFiles + newPdfFile,
                 errorMessage = null
             )
+        } else {
+            _state.value = _state.value.copy(
+                errorMessage = "Please select a valid PDF file."
+            )
+            _uiState.value = _uiState.value.copy(showErrorDialog = true)
         }
+        hideFileChooser()
+    }
+
+    private fun showFileSaver() {
+        if (_state.value.pdfFiles.isEmpty()) {
+            _state.value = _state.value.copy(errorMessage = "Please add at least one PDF file.")
+            _uiState.value = _uiState.value.copy(showErrorDialog = true)
+            return
+        }
+        _uiState.value = _uiState.value.copy(showFileSaver = true)
+    }
+
+    private fun hideFileSaver() {
+        _uiState.value = _uiState.value.copy(showFileSaver = false)
     }
 
     private fun combinePdfs() {
-        if (_state.value.pdfFiles.isEmpty()) {
-            _state.value = _state.value.copy(errorMessage = "Please add at least one PDF file.")
-            return
-        }
-
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
 
-        try {
-            val fileChooser = JFileChooser().apply {
-                selectedFile = File("${_state.value.outputFileName}.pdf")
-                fileFilter = FileNameExtensionFilter("PDF files", "pdf")
-            }
+        scope.launch {
+            try {
+                val outputFile = _uiState.value.selectedSaveFile
+                if (outputFile != null) {
+                    val merger = PDFMergerUtility()
 
-            val result = fileChooser.showSaveDialog(null)
-            if (result == JFileChooser.APPROVE_OPTION) {
-                val outputFile = fileChooser.selectedFile
-                val merger = PDFMergerUtility()
+                    _state.value.pdfFiles.forEach { pdfFile ->
+                        merger.addSource(File(pdfFile.path))
+                    }
 
-                _state.value.pdfFiles.forEach { pdfFile ->
-                    merger.addSource(File(pdfFile.path))
+                    merger.destinationFileName = outputFile.absolutePath
+                    merger.mergeDocuments(null)
+
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        successMessage = "PDFs combined successfully!\nSaved to: ${outputFile.absolutePath}"
+                    )
+                    _uiState.value = _uiState.value.copy(
+                        showSuccessDialog = true,
+                        selectedSaveFile = null
+                    )
+                } else {
+                    _state.value = _state.value.copy(isLoading = false)
                 }
-
-                merger.destinationFileName = outputFile.absolutePath
-                merger.mergeDocuments(null)
-
+            } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    successMessage = "PDFs combined successfully!\nSaved to: ${outputFile.absolutePath}"
+                    errorMessage = "Failed to combine PDFs: ${e.message}"
                 )
-            } else {
-                _state.value = _state.value.copy(isLoading = false)
+                _uiState.value = _uiState.value.copy(showErrorDialog = true)
             }
-        } catch (e: Exception) {
-            _state.value = _state.value.copy(
-                isLoading = false,
-                errorMessage = "Failed to combine PDFs: ${e.message}"
-            )
         }
+        hideFileSaver()
     }
 
     private fun removePdf(pdfFile: PdfFile) {
@@ -119,6 +142,29 @@ class MainViewModel(
         )
     }
 
+    private fun showSuccessDialog() {
+        _uiState.value = _uiState.value.copy(showSuccessDialog = true)
+    }
+
+    private fun hideSuccessDialog() {
+        _uiState.value = _uiState.value.copy(showSuccessDialog = false)
+        clearMessages()
+    }
+
+    private fun showErrorDialog() {
+        _uiState.value = _uiState.value.copy(showErrorDialog = true)
+    }
+
+    private fun hideErrorDialog() {
+        _uiState.value = _uiState.value.copy(showErrorDialog = false)
+        clearMessages()
+    }
+
+    fun onSaveFileSelected(file: File) {
+        _uiState.value = _uiState.value.copy(selectedSaveFile = file)
+        handleIntent(PdfCombinerIntent.CombinePdfs)
+    }
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
@@ -131,6 +177,11 @@ class MainViewModel(
 
     data class UiState(
         val darkMode: Boolean = false,
-        val isConverting: Boolean = false
+        val isConverting: Boolean = false,
+        val showFileChooser: Boolean = false,
+        val showFileSaver: Boolean = false,
+        val showSuccessDialog: Boolean = false,
+        val showErrorDialog: Boolean = false,
+        val selectedSaveFile: File? = null
     )
 }
