@@ -1,5 +1,3 @@
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -17,25 +15,23 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import java.awt.Cursor
 import java.awt.datatransfer.DataFlavor
 import java.io.File
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun PdfListArea(
     pdfFiles: List<PdfFile>,
@@ -160,7 +156,7 @@ fun PdfListArea(
                         .fillMaxSize()
                         .verticalScroll(verticalScrollState)
                 ) {
-                    DraggableFlowRow(
+                    DraggableGrid(
                         pdfFiles = pdfFiles,
                         draggedItemIndex = draggedItemIndex,
                         onDragStart = { index -> draggedItemIndex = index },
@@ -169,7 +165,6 @@ fun PdfListArea(
                         onRemovePdf = onRemovePdf,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateContentSize(animationSpec = tween(durationMillis = 300))
                             .padding(start = 20.dp, end = 32.dp, top = 20.dp, bottom = 8.dp)
                     )
 
@@ -212,9 +207,8 @@ fun PdfListArea(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DraggableFlowRow(
+private fun DraggableGrid(
     pdfFiles: List<PdfFile>,
     draggedItemIndex: Int?,
     onDragStart: (Int) -> Unit,
@@ -223,46 +217,54 @@ private fun DraggableFlowRow(
     onRemovePdf: (PdfFile) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var itemBounds by remember { mutableStateOf<Map<Int, Rect>>(emptyMap()) }
+    BoxWithConstraints(modifier = modifier) {
+        val itemWidth = 200.dp
+        val itemHeight = 120.dp
+        val spacing = 15.dp
 
-    FlowRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp)
-    ) {
-        pdfFiles.forEachIndexed { index, pdfFile ->
-            val isBeingDragged = draggedItemIndex == index
+        val itemsPerRow = ((maxWidth + spacing) / (itemWidth + spacing)).toInt().coerceAtLeast(1)
 
-            DraggablePdfItem(
-                pdfFile = pdfFile,
-                index = index,
-                isBeingDragged = isBeingDragged,
-                onRemove = { onRemovePdf(pdfFile) },
-                onDragStart = { onDragStart(index) },
-                onDragEnd = { fromIndex, currentOffset ->
-                    val draggedBounds = itemBounds[fromIndex]
-                    if (draggedBounds != null) {
-                        val draggedCenter = draggedBounds.center + currentOffset
+        val totalRows = (pdfFiles.size + itemsPerRow - 1) / itemsPerRow
+        val totalHeight = totalRows * (itemHeight + spacing) - spacing
 
-                        var targetIndex = fromIndex
-                        itemBounds.forEach { (itemIndex, bounds) ->
-                            if (itemIndex != fromIndex && bounds.contains(draggedCenter)) {
-                                targetIndex = itemIndex
-                            }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(totalHeight)
+        ) {
+            pdfFiles.forEachIndexed { index, pdfFile ->
+                val row = index / itemsPerRow
+                val col = index % itemsPerRow
+
+                val isBeingDragged = draggedItemIndex == index
+
+                DraggablePdfItem(
+                    pdfFile = pdfFile,
+                    index = index,
+                    gridPosition = IntOffset(
+                        x = (col * (itemWidth + spacing).value).toInt(),
+                        y = (row * (itemHeight + spacing).value).toInt()
+                    ),
+                    isBeingDragged = isBeingDragged,
+                    itemWidth = itemWidth,
+                    itemHeight = itemHeight,
+                    onRemove = { onRemovePdf(pdfFile) },
+                    onDragStart = { onDragStart(index) },
+                    onDragEnd = { fromIndex, dragOffset ->
+                        val newCol = ((col * (itemWidth + spacing).value + dragOffset.x) / (itemWidth + spacing).value)
+                            .roundToInt().coerceIn(0, itemsPerRow - 1)
+                        val newRow = ((row * (itemHeight + spacing).value + dragOffset.y) / (itemHeight + spacing).value)
+                            .roundToInt().coerceAtLeast(0)
+
+                        val newIndex = (newRow * itemsPerRow + newCol).coerceIn(0, pdfFiles.lastIndex)
+
+                        if (fromIndex != newIndex) {
+                            onReorder(fromIndex, newIndex)
                         }
-
-                        if (targetIndex != fromIndex) {
-                            onReorder(fromIndex, targetIndex)
-                        }
+                        onDragEnd()
                     }
-                    onDragEnd()
-                },
-                onBoundsChanged = { bounds ->
-                    itemBounds = itemBounds.toMutableMap().apply {
-                        put(index, bounds)
-                    }
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -271,26 +273,26 @@ private fun DraggableFlowRow(
 private fun DraggablePdfItem(
     pdfFile: PdfFile,
     index: Int,
+    gridPosition: IntOffset,
     isBeingDragged: Boolean,
+    itemWidth: androidx.compose.ui.unit.Dp,
+    itemHeight: androidx.compose.ui.unit.Dp,
     onRemove: () -> Unit,
     onDragStart: () -> Unit,
-    onDragEnd: (fromIndex: Int, currentOffset: Offset) -> Unit,
-    onBoundsChanged: (Rect) -> Unit
+    onDragEnd: (fromIndex: Int, dragOffset: Offset) -> Unit
 ) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
     Box(
         modifier = Modifier
-            .onGloballyPositioned { coordinates ->
-                onBoundsChanged(coordinates.boundsInParent())
-            }
             .offset {
                 IntOffset(
-                    if (isBeingDragged) offsetX.roundToInt() else 0,
-                    if (isBeingDragged) offsetY.roundToInt() else 0
+                    x = gridPosition.x + if (isBeingDragged) offsetX.roundToInt() else 0,
+                    y = gridPosition.y + if (isBeingDragged) offsetY.roundToInt() else 0
                 )
             }
+            .size(itemWidth, itemHeight)
             .graphicsLayer {
                 alpha = if (isBeingDragged) 0.8f else 1f
                 scaleX = if (isBeingDragged) 1.05f else 1f
@@ -316,7 +318,6 @@ private fun DraggablePdfItem(
                     }
                 )
             }
-            .animateContentSize(animationSpec = tween(durationMillis = 200))
     ) {
         PdfItemCard(
             pdfFile = pdfFile,

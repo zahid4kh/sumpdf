@@ -108,6 +108,9 @@ fun App(
                         viewModel.handleIntent(PdfCombinerIntent.AddPdf(file))
                     }
                 },
+                onReorderPdfs = { fromIndex, toIndex ->
+                    viewModel.handleIntent(PdfCombinerIntent.ReorderPdfs(fromIndex, toIndex))
+                },
                 modifier = Modifier.weight(1f)
             )
 
