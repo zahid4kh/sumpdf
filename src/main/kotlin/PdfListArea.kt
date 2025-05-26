@@ -1,13 +1,12 @@
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.*
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,15 +17,14 @@ import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.dp
-import java.awt.Cursor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.awt.Cursor
 import java.awt.datatransfer.DataFlavor
 import java.io.File
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun PdfListArea(
     pdfFiles: List<PdfFile>,
@@ -131,19 +129,46 @@ fun PdfListArea(
                 )
             }
         } else {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(pdfFiles) { pdfFile ->
-                    PdfItemCard(
-                        pdfFile = pdfFile,
-                        onRemove = { onRemovePdf(pdfFile) }
-                    )
+                val verticalScrollState = rememberScrollState()
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(verticalScrollState)
+                ) {
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize()
+                            .padding(start = 20.dp, end = 32.dp, top = 20.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                    ){
+                        pdfFiles.forEach {
+                            PdfItemCard(
+                                pdfFile = it,
+                                onRemove = { onRemovePdf(it) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
+
+                VerticalScrollbar(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .padding(end = 4.dp),
+                    adapter = rememberScrollbarAdapter(verticalScrollState),
+                    style = LocalScrollbarStyle.current.copy(
+                        hoverColor = MaterialTheme.colorScheme.outline,
+                        unhoverColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                )
             }
         }
 
