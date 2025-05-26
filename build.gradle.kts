@@ -46,11 +46,6 @@ dependencies {
 
 compose.desktop {
     application {
-        /*
-        must match the annotation in Main.kt
-        @file:JvmName("SumPDF").
-        This also sets the app's dock name on Linux.
-         */
         mainClass = "SumPDF"
 
         nativeDistributions {
