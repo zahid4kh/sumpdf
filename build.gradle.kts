@@ -67,7 +67,7 @@ compose.desktop {
                 shortcut = true
                 dirChooser = true
                 menu = true
-                upgradeUuid = "run the 'generateUpgradeUuid' task and paste the generated UUID here only once"
+                upgradeUuid = "6414014c-b5f0-462e-967f-14fdd38386f5"
                 iconFile.set(project.file("icons/compose.ico"))
             }
 
