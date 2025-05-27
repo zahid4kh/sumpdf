@@ -1,3 +1,5 @@
+package combiner
+
 import java.io.File
 
 data class PdfCombinerState(

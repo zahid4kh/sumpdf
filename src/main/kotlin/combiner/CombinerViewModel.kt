@@ -1,3 +1,6 @@
+package combiner
+
+import Database
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -7,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import java.io.File
 
-class MainViewModel(
+class CombinerViewModel(
     private val database: Database,
 ) {
     private val _uiState = MutableStateFlow(UiState())

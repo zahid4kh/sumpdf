@@ -12,28 +12,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import combiner.CombinerViewModel
+import combiner.PdfCombinerIntent
+import combiner.PdfListArea
 import kotlinx.coroutines.delay
 import theme.AppTheme
 import dialogs.InfoDialog
 import dialogs.file.FileChooserDialog
 import dialogs.file.FileSaverDialog
-import kotlinx.coroutines.MainScope
-import org.jetbrains.compose.resources.Font
-import sumpdf.resources.Res
-import sumpdf.resources.Roboto_Bold
-import sumpdf.resources.Ubuntu_Italic
-import sumpdf.resources.Ubuntu_Regular
 
 @Composable
 @Preview
 fun App(
-    viewModel: MainViewModel
+    viewModel: CombinerViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pdfState by viewModel.state.collectAsState()
@@ -292,6 +286,6 @@ fun App(
 @Preview
 @Composable
 fun AppPreview(){
-    val viewModel = MainViewModel(database = Database())
+    val viewModel = CombinerViewModel(database = Database())
     App(viewModel)
 }

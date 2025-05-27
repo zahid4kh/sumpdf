@@ -1,7 +1,11 @@
+package combiner
+
+import java.io.File
+
 sealed class PdfCombinerIntent {
     object ShowFileChooser : PdfCombinerIntent()
     object HideFileChooser : PdfCombinerIntent()
-    data class AddPdf(val file: java.io.File) : PdfCombinerIntent()
+    data class AddPdf(val file: File) : PdfCombinerIntent()
     data class RemovePdf(val pdfFile: PdfFile) : PdfCombinerIntent()
     data class ReorderPdfs(val fromIndex: Int, val toIndex: Int) : PdfCombinerIntent()
     object ClearAll : PdfCombinerIntent()

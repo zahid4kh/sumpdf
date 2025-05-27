@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import combiner.CombinerViewModel
 import org.jetbrains.compose.resources.painterResource
 import theme.AppTheme
 import java.awt.Dimension
@@ -17,7 +18,7 @@ fun main() = application {
         modules(appModule)
     }
 
-    val viewModel = getKoin().get<MainViewModel>()
+    val viewModel = getKoin().get<CombinerViewModel>()
 
     Window(
         onCloseRequest = ::exitApplication,

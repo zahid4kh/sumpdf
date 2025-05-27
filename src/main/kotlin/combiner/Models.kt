@@ -1,5 +1,6 @@
+package combiner
+
 import kotlinx.serialization.Serializable
-import java.io.File
 
 
 @Serializable

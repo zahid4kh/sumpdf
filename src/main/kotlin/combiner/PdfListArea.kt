@@ -1,3 +1,5 @@
+package combiner
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,9 +23,9 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import java.awt.Cursor
@@ -277,8 +279,8 @@ private fun DraggablePdfItem(
     index: Int,
     gridPosition: IntOffset,
     isBeingDragged: Boolean,
-    itemWidth: androidx.compose.ui.unit.Dp,
-    itemHeight: androidx.compose.ui.unit.Dp,
+    itemWidth: Dp,
+    itemHeight: Dp,
     onRemove: () -> Unit,
     onDragStart: () -> Unit,
     onDragEnd: (fromIndex: Int, dragOffset: Offset) -> Unit
