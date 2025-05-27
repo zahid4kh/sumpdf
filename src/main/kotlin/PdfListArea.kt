@@ -140,7 +140,8 @@ fun PdfListArea(
                         MaterialTheme.colorScheme.primary
                     else
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 16.sp,
+                    fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textAlign = TextAlign.Center,
                     fontStyle = FontStyle.Italic
                 )
@@ -198,8 +199,9 @@ fun PdfListArea(
                     Text(
                         text = "Drop PDF files to add them",
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp,
-                        fontStyle = FontStyle.Italic
+                        fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
+//                        fontSize = 18.sp,
+//                        fontStyle = FontStyle.Italic
                     )
                 }
             }

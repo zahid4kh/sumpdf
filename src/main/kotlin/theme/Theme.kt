@@ -12,11 +12,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
-import sumpdf.resources.Res
-import sumpdf.resources.Roboto_Bold
-import sumpdf.resources.Roboto_Italic
-import sumpdf.resources.Roboto_Regular
-import theme.Typography
+import sumpdf.resources.*
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -87,35 +83,105 @@ fun AppTheme(
         Font(resource = Res.font.Roboto_Bold, weight = FontWeight.Bold, style = FontStyle.Normal)
 
     )
-    val appTypography =
-        Typography(
-            bodyLarge = TextStyle(
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                letterSpacing = 0.5.sp
-            ),
-            titleLarge = TextStyle(
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                lineHeight = 28.sp,
-                letterSpacing = 0.sp
-            ),
-            labelSmall = TextStyle(
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 11.sp,
-                lineHeight = 16.sp,
-                letterSpacing = 0.5.sp
-            )
+
+    val ubuntuFontFamily = FontFamily(
+        Font(resource = Res.font.Ubuntu_Regular, weight = FontWeight.Normal, style = FontStyle.Normal),
+        Font(resource = Res.font.Ubuntu_Italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+        Font(resource = Res.font.Roboto_Bold, weight = FontWeight.Bold, style = FontStyle.Normal)
+    )
+
+    val ubuntuType = Typography(
+        headlineLarge = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 32.sp,
+        ),
+        bodyLarge = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            lineHeight = 24.sp,
+            letterSpacing = 0.5.sp
+        ),
+        titleLarge = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            lineHeight = 28.sp,
+            letterSpacing = 0.sp
+        ),
+        labelSmall = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 11.sp,
+            lineHeight = 16.sp,
+            letterSpacing = 0.5.sp
+        ),
+        labelMedium = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 16.sp,
+            letterSpacing = 0.25.sp
+        ),
+        bodyMedium = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            letterSpacing = 0.25.sp
         )
+    )
+
+
+    val robotoType = Typography(
+        headlineLarge = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 32.sp,
+        ),
+        bodyLarge = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            lineHeight = 24.sp,
+            letterSpacing = 0.5.sp
+        ),
+        titleLarge = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            lineHeight = 28.sp,
+            letterSpacing = 0.sp
+        ),
+        labelSmall = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 11.sp,
+            lineHeight = 16.sp,
+            letterSpacing = 0.5.sp
+        ),
+        labelMedium = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 16.sp,
+            letterSpacing = 0.25.sp
+        ),
+        bodyMedium = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            letterSpacing = 0.25.sp
+        )
+    )
+
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = appTypography,
+        typography = if (System.getProperty("os.name").lowercase() == "linux") ubuntuType else robotoType,
         content = content
     )
 }

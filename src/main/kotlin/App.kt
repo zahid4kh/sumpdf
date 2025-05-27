@@ -11,6 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,6 +23,12 @@ import theme.AppTheme
 import dialogs.InfoDialog
 import dialogs.file.FileChooserDialog
 import dialogs.file.FileSaverDialog
+import kotlinx.coroutines.MainScope
+import org.jetbrains.compose.resources.Font
+import sumpdf.resources.Res
+import sumpdf.resources.Roboto_Bold
+import sumpdf.resources.Ubuntu_Italic
+import sumpdf.resources.Ubuntu_Regular
 
 @Composable
 @Preview
@@ -62,8 +71,9 @@ fun App(
                 ) {
                     Text(
                         text = "PDF Combiner",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = MaterialTheme.typography.headlineLarge.fontFamily,
+                        fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                        fontWeight = MaterialTheme.typography.headlineLarge.fontWeight,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Start
                     )
@@ -75,9 +85,9 @@ fun App(
                 ) {
                     Text(
                         text = "Dark Mode",
-                        fontSize = 14.sp,
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize,
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = MaterialTheme.typography.labelMedium.fontWeight
                     )
                     Switch(
                         checked = uiState.darkMode,
@@ -94,7 +104,7 @@ fun App(
 
             Text(
                 text = "Select PDF files to combine them into a single document",
-                fontSize = 14.sp,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -117,7 +127,10 @@ fun App(
             OutlinedTextField(
                 value = pdfState.outputFileName,
                 onValueChange = { viewModel.handleIntent(PdfCombinerIntent.SetOutputFileName(it)) },
-                label = { Text("Output filename") },
+                textStyle = TextStyle(
+                    fontFamily = MaterialTheme.typography.labelMedium.fontFamily
+                ),
+                label = { Text("Output filename", fontFamily = MaterialTheme.typography.labelSmall.fontFamily) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = MaterialTheme.shapes.large,
@@ -137,6 +150,7 @@ fun App(
                     Text(
                         text = message,
                         color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -151,6 +165,7 @@ fun App(
                 ) {
                     Text(
                         text = message,
+                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -170,7 +185,11 @@ fun App(
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Add PDFs", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("Add PDFs",
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Button(
@@ -182,7 +201,10 @@ fun App(
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Clear All", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("Clear All", fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -209,7 +231,8 @@ fun App(
                     }
                     Text(
                         if (pdfState.isLoading) "Combining..." else "Combine PDFs",
-                        fontSize = 16.sp,
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                         fontWeight = FontWeight.Bold
                     )
                 }
