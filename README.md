@@ -1,36 +1,55 @@
 # SumPDF
 
-A desktop application built with Kotlin and Compose for Desktop.
+**SumPDF** is a free and open-source desktop application built with [Compose for Desktop](https://github.com/JetBrains/compose-multiplatform?tab=readme-ov-file#desktop) that allows to effortlessly **combine** multiple PDF files and **convert** various files (like images or documents) to PDFs.
 
 ## Features
 
-- Modern UI with Material 3 design
-- Dark mode support
-- Cross-platform (Windows, macOS, Linux)
+- **Combine PDFs**
+  - Merge multiple PDF files into one.
 
-## Development Setup
+- **Convert to PDF**
+  - Convert `txt`, `odt`, `png`, `jpg`, `jpeg`, `svg` files into PDF documents.
 
-### Prerequisites
 
-- JDK 17 or later
-- IntelliJ IDEA (recommended) or Android Studio
+## 🖥️ Screenshots
 
-### Running the Application
+### Home Screen
+![Home Screen Placeholder](screenshots/home.png)
 
-1. Clone the repository
-2. Open the project in IntelliJ IDEA
-3. Run the `Main.kt` file or use the Gradle task `run`
+### Combine PDFs
+![Combine PDFs Placeholder](screenshots/combine.png)
 
-### Building a Native Distribution
+### Convert to PDF
+![Convert to PDF Placeholder](screenshots/convert.png)
 
-To build a native distribution for your platform:
 
+## Build from source
+
+Clone the repository:
+
+```bash
+git clone https://github.com/zahid4kh/sumpdf.git
+cd sumpdf
+````
+
+- Run the app normally:
+
+```bash
+./gradlew :run
 ```
-./gradlew packageDistributionForCurrentOS
+OR
+
+- Run the app with hot-reload:
+
+```kotlin
+./gradlew :runHot --mainClass SumPDF --auto
 ```
 
-This will create a platform-specific installer in the `build/compose/binaries/main-release/{extension}/` directory.
 
-## Generated with Compose for Desktop Wizard
+## Contribution
 
-This project was generated using the [Compose for Desktop Wizard](https://github.com/zahid4kh/compose-for-desktop).
+Feel free to contribute!
+
+## License
+
+This project is licensed under the Apache 2.0 License. See [LICENSE](LICENSE) for more info.
