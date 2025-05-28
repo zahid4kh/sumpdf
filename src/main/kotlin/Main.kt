@@ -25,12 +25,12 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(size = DpSize(900.dp, 700.dp)),
+        state = rememberWindowState(size = DpSize(800.dp, 600.dp)),
         title = "SumPDF",
         alwaysOnTop = true,
         icon = painterResource(Res.drawable.sumpdf)
     ) {
-        window.minimumSize = Dimension(900, 700)
+        window.minimumSize = Dimension(800, 600)
 
         ProvidePreComposeLocals {
             App(
