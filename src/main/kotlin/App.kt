@@ -1,3 +1,7 @@
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,14 +44,24 @@ fun App(
                     )
                 }
 
-                scene("/combiner") {
+                scene("/combiner",
+                    navTransition = NavTransition(
+                        createTransition = slideInHorizontally() + scaleIn(initialScale = 0.4f),
+                        destroyTransition = scaleOut()
+                    )
+                ) {
                     CombinerScreen(
                         viewModel = combinerViewModel,
                         onBack = { navigator.goBack() }
                     )
                 }
 
-                scene("/converter") {
+                scene("/converter",
+                    navTransition = NavTransition(
+                        createTransition = slideInHorizontally(initialOffsetX = {it/2}) + scaleIn(initialScale = 0.4f),
+                        destroyTransition = scaleOut()
+                    )
+                ) {
                     ConverterScreen(
                         viewModel = converterViewModel,
                         onBack = { navigator.goBack() }
