@@ -54,16 +54,12 @@ fun BottomBar(
                 Button(
                     onClick = onAddFiles,
                     enabled = !isConverting,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.onSecondary,
                         disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
                         disabledContentColor = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f)
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 2.dp,
-                        pressedElevation = 0.dp
                     ),
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
@@ -83,14 +79,10 @@ fun BottomBar(
                 Button(
                     onClick = onClearFiles,
                     enabled = fileCount > 0 && !isConverting,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 2.dp,
-                        pressedElevation = 0.dp
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
                     ),
                     modifier = Modifier.alpha(clearButtonAlpha.value)
                 ) {
