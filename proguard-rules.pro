@@ -40,13 +40,23 @@
 }
 -keep class kotlinx.serialization.descriptors.** { *; }
 
-# Keep data classes
+# Keep data classes and their inner classes
 -keep class combiner.AppSettings { *; }
 -keep class combiner.AppSettings$$serializer { *; }
 -keep class converter.ConverterSettings { *; }
 -keep class converter.ConverterSettings$$serializer { *; }
 -keep class converter.ConversionTask { *; }
 -keep class converter.ConversionTask$$serializer { *; }
+
+# Keep all local model classes and enums
+-keep class combiner.PdfCombinerIntent { *; }
+-keep class combiner.PdfCombinerIntent$* { *; }
+-keep class combiner.PdfFile { *; }
+-keep class combiner.PdfFile$* { *; }
+-keep enum converter.ConversionStatus { *; }
+-keep class model.FileItem { *; }
+-keep class model.ConversionResult { *; }
+-keep interface converter.Converter { *; }
 
 # XML and DOM - Handle duplicate definitions
 -dontnote javax.xml.**
@@ -111,12 +121,26 @@
     *;
 }
 
-# JodConverter - Keep only what used
+# JodConverter - Keep all required classes
 -dontwarn org.jodconverter.**
 -dontwarn com.sun.star.**
 -dontwarn java.lang.ProcessBuilder
 
-# Keep core JodConverter classes
+# Koin dependency injection
+-dontwarn org.koin.**
+-dontnote org.koin.**
+-keep class org.koin.core.** { *; }
+-keep class org.koin.core.scope.Scope { *; }
+-keep class org.koin.core.parameter.ParametersHolder { *; }
+-keep class org.koin.core.module.Module { *; }
+-keep class org.koin.dsl.** { *; }
+
+# Keep Koin related lambda functions in AppModule
+-keepclassmembers class AppModuleKt {
+    ** appModule$lambda$*(***);
+}
+
+# Keep core JodConverter classes and their inner classes
 -keep class org.jodconverter.core.** { *; }
 -keep class org.jodconverter.local.LocalConverter { *; }
 -keep class org.jodconverter.local.LocalConverter$* { *; }
@@ -124,7 +148,17 @@
 -keep class org.jodconverter.local.office.LocalOfficeManager$* { *; }
 -keep class org.jodconverter.local.office.LocalOfficeUtils { *; }
 -keep class org.jodconverter.local.office.OfficeConnection { *; }
+-keep class org.jodconverter.local.office.OfficeConnectionEvent { *; }
+-keep class org.jodconverter.local.office.OfficeConnectionEventListener { *; }
+-keep class org.jodconverter.local.office.OfficeUrl { *; }
+-keep class org.jodconverter.local.office.ExistingProcessAction { *; }
+-keep class org.jodconverter.local.task.LoadDocumentMode { *; }
+-keep class org.jodconverter.local.process.ProcessManager { *; }
+-keep class org.jodconverter.local.process.ProcessQuery { *; }
 -keep interface org.jodconverter.local.** { *; }
+
+# Suppress dynamic constructor notes for JodConverter
+-dontnote org.jodconverter.local.office.LocalOfficeManager$Builder
 
 -dontnote org.jodconverter.local.filter.**
 
@@ -136,17 +170,19 @@
 -keep class com.sun.star.lib.** { *; }
 -keep class com.sun.star.uno.** { *; }
 
-# Apache Batik - Fixed the warnings
+# Apache Batik and XMLGraphics
 -dontwarn org.apache.batik.**
 -dontwarn org.mozilla.javascript.**
 -dontwarn org.python.**
 -dontwarn org.apache.fop.**
 
-# Suppress Batik dynamic loading notes
+# Suppress Batik and XMLGraphics dynamic loading notes
 -dontnote org.apache.batik.**
 -dontnote org.w3c.css.sac.helpers.ParserFactory
 -dontnote javax.xml.datatype.DatatypeConfigurationException
 -dontnote javax.xml.transform.TransformerException
+-dontnote org.apache.xmlgraphics.ps.dsc.DSCCommentFactory
+-dontnote org.apache.xmlgraphics.util.Service
 
 # Keep Batik classes actually used
 -keep class org.apache.batik.transcoder.** { *; }
@@ -196,10 +232,13 @@
 
 # Keep ViewModels and other app classes
 -keep class combiner.CombinerViewModel { *; }
+-keep class combiner.CombinerViewModel$* { *; }
 -keep class converter.ConverterViewModel { *; }
+-keep class converter.ConverterViewModel$* { *; }
 -keep class converter.PDFConverter { *; }
 -keep class Database { *; }
 -keep class SumPDF { *; }
+-keep class AppModuleKt { *; }
 
 # Suppress dynamic loading notes
 -dontnote org.apache.batik.apps.svgbrowser.JSVGViewerFrame$Debugger
