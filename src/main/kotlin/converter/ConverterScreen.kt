@@ -36,18 +36,6 @@ fun ConverterScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Convert to PDF") },
-                actions = {
-                    if (uiState.previousTasks.isNotEmpty()) {
-                        IconButton(
-                            onClick = { /* can implement later */ }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.History,
-                                contentDescription = "View task history"
-                            )
-                        }
-                    }
-                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
