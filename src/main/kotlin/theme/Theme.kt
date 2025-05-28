@@ -110,6 +110,11 @@ fun AppTheme(
             lineHeight = 28.sp,
             letterSpacing = 0.sp
         ),
+        titleMedium = TextStyle(
+            fontFamily = ubuntuFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
+        ),
         labelSmall = TextStyle(
             fontFamily = ubuntuFontFamily,
             fontWeight = FontWeight.Normal,
