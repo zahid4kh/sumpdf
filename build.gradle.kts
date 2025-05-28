@@ -43,6 +43,13 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("org.slf4j:slf4j-simple:2.0.12")
 
+    implementation("org.jodconverter:jodconverter-local:4.4.8")
+    implementation("org.jodconverter:jodconverter-core:4.4.8")
+
+    implementation("org.apache.xmlgraphics:batik-all:1.18")
+    implementation("moe.tlaster:precompose:1.6.3")
+    implementation("moe.tlaster:precompose-viewmodel:1.6.3")
+
 }
 
 compose.resources{
