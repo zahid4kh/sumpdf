@@ -47,8 +47,11 @@ dependencies {
     implementation("org.jodconverter:jodconverter-core:4.4.8")
 
     implementation("org.apache.xmlgraphics:batik-all:1.18")
-    implementation("moe.tlaster:precompose:1.6.3")
-    implementation("moe.tlaster:precompose-viewmodel:1.6.3")
+
+    api("moe.tlaster:precompose:1.6.2")
+    api("moe.tlaster:precompose-viewmodel:1.6.2")
+    api(compose.foundation)
+    api(compose.animation)
 
 }
 
