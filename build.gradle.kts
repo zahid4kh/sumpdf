@@ -89,12 +89,12 @@ compose.desktop {
                 dirChooser = true
                 menu = true
                 upgradeUuid = "6414014c-b5f0-462e-967f-14fdd38386f5"
-                iconFile.set(project.file("icons/compose.ico"))
+                iconFile.set(project.file("icons/sumpdf.ico"))
             }
 
             macOS{
                 dockName = "SumPDF"
-                iconFile.set(project.file("icons/compose.icns"))
+                iconFile.set(project.file("icons/sumpdf.icns"))
             }
         }
     }
