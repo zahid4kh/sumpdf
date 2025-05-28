@@ -5,6 +5,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import combiner.CombinerViewModel
+import converter.ConverterViewModel
+import moe.tlaster.precompose.ProvidePreComposeLocals
 import org.jetbrains.compose.resources.painterResource
 import theme.AppTheme
 import java.awt.Dimension
@@ -18,21 +20,24 @@ fun main() = application {
         modules(appModule)
     }
 
-    val viewModel = getKoin().get<CombinerViewModel>()
+    val combinerViewModel = getKoin().get<CombinerViewModel>()
+    val converterViewModel = getKoin().get<ConverterViewModel>()
 
     Window(
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(size = DpSize(800.dp, 600.dp)),
+        state = rememberWindowState(size = DpSize(900.dp, 700.dp)),
         title = "SumPDF",
         alwaysOnTop = true,
         icon = painterResource(Res.drawable.sumpdf)
     ) {
-        window.minimumSize = Dimension(800, 600)
+        window.minimumSize = Dimension(900, 700)
 
-        AppTheme {
+        ProvidePreComposeLocals {
             App(
-                viewModel = viewModel
+                combinerViewModel = combinerViewModel,
+                converterViewModel = converterViewModel
             )
         }
+
     }
 }
