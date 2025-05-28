@@ -34,7 +34,7 @@ fun ConverterScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Convert to PDF") },
+                title = { Text("Convert to PDF", fontFamily = MaterialTheme.typography.titleLarge.fontFamily) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

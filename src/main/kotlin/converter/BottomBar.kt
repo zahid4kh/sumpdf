@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 @Composable
@@ -68,7 +69,7 @@ fun BottomBar(
                         contentDescription = "Add files",
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    Text("Add Files")
+                    Text("Add Files", fontFamily = MaterialTheme.typography.bodyMedium.fontFamily)
                 }
 
                 val clearButtonAlpha = animateFloatAsState(
@@ -91,7 +92,7 @@ fun BottomBar(
                         contentDescription = "Clear files",
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    Text("Clear All")
+                    Text("Clear All", fontFamily = MaterialTheme.typography.bodyMedium.fontFamily)
                 }
             },
             floatingActionButton = {
@@ -100,7 +101,8 @@ fun BottomBar(
                     text = {
                         Text(
                             text = "Convert (${fileCount})",
-                            style = MaterialTheme.typography.titleMedium
+                            fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                            fontSize = 17.sp
                         )
                     },
                     icon = {

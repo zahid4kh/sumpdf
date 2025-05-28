@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import model.FileItem
 import java.io.File
 
@@ -112,14 +113,15 @@ private fun FileListItem(
             ) {
                 Text(
                     text = file.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = getFileTypeAndSize(file),
-                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = MaterialTheme.typography.labelSmall.fontFamily,
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

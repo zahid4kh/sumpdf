@@ -42,7 +42,8 @@ fun OutputPathSelection(
 
         Text(
             text = "Output folder:",
-            style = MaterialTheme.typography.titleMedium,
+            fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
             modifier = Modifier.padding(end = 12.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -70,7 +71,10 @@ fun OutputPathSelection(
                 contentDescription = "Select folder",
                 modifier = Modifier.padding(end = 4.dp)
             )
-            Text("Choose folder")
+            Text("Choose folder",
+                fontFamily = MaterialTheme.typography.labelMedium.fontFamily,
+                fontSize = MaterialTheme.typography.labelMedium.fontSize
+            )
         }
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -89,7 +93,9 @@ fun OutputPathSelection(
                     contentDescription = "Recent folders",
                     modifier = Modifier.padding(end = 4.dp)
                 )
-                Text("Recent")
+                Text("Recent",
+                    fontFamily = MaterialTheme.typography.labelMedium.fontFamily,
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize)
             }
 
             DropdownMenu(
