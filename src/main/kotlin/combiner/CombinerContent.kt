@@ -127,7 +127,6 @@ fun CombinerContent(
         ) {
             Button(
                 onClick = { viewModel.handleIntent(PdfCombinerIntent.ShowFileChooser) },
-                modifier = Modifier.height(45.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -143,7 +142,6 @@ fun CombinerContent(
 
             Button(
                 onClick = { viewModel.handleIntent(PdfCombinerIntent.ClearAll) },
-                modifier = Modifier.height(45.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError
@@ -160,7 +158,6 @@ fun CombinerContent(
 
             Button(
                 onClick = { viewModel.handleIntent(PdfCombinerIntent.ShowFileSaver) },
-                modifier = Modifier.height(45.dp),
                 enabled = pdfState.pdfFiles.isNotEmpty() && !pdfState.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
