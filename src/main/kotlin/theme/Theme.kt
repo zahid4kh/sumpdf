@@ -159,6 +159,11 @@ fun AppTheme(
             lineHeight = 28.sp,
             letterSpacing = 0.sp
         ),
+        titleMedium = TextStyle(
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
+        ),
         labelSmall = TextStyle(
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal,
