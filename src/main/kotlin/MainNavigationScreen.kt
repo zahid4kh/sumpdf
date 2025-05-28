@@ -39,6 +39,9 @@ fun MainNavigationScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                modifier = Modifier.clip(
+                    RoundedCornerShape(bottomStart = 17.dp, bottomEnd = 17.dp)
                 )
             )
         }
