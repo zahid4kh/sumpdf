@@ -87,7 +87,7 @@ fun AppTheme(
     val ubuntuFontFamily = FontFamily(
         Font(resource = Res.font.Ubuntu_Regular, weight = FontWeight.Normal, style = FontStyle.Normal),
         Font(resource = Res.font.Ubuntu_Italic, weight = FontWeight.Normal, style = FontStyle.Italic),
-        Font(resource = Res.font.Roboto_Bold, weight = FontWeight.Bold, style = FontStyle.Normal)
+        Font(resource = Res.font.Ubuntu_Bold, weight = FontWeight.Bold, style = FontStyle.Normal)
     )
 
     val ubuntuType = Typography(
