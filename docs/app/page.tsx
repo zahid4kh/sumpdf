@@ -559,18 +559,31 @@ cd sumpdf`}
                 >
                   Running the App
                 </h3>
-                <p className={`mb-3 ${themeClasses.text}`}>
-                  Run the app normally:
-                </p>
+
+                {/* Linux/macOS */}
+                <p className={`mb-3 ${themeClasses.text}`}>Linux/macOS:</p>
                 <div className="mb-4">
-                  <CodeBlock id="run">./gradlew :run</CodeBlock>
+                  <CodeBlock id="run-unix">./gradlew :run</CodeBlock>
+                </div>
+                <p className={`mb-3 ${themeClasses.text}`}>
+                  Or with hot-reload for development:
+                </p>
+                <div className="mb-6">
+                  <CodeBlock id="runHot-unix">
+                    ./gradlew :runHot --mainClass SumPDF --auto
+                  </CodeBlock>
                 </div>
 
+                {/* Windows */}
+                <p className={`mb-3 ${themeClasses.text}`}>Windows:</p>
+                <div className="mb-4">
+                  <CodeBlock id="run-windows">.\gradlew.bat :run</CodeBlock>
+                </div>
                 <p className={`mb-3 ${themeClasses.text}`}>
-                  Or, run with hot-reload for development:
+                  Or with hot-reload for development:
                 </p>
-                <CodeBlock id="runHot">
-                  ./gradlew :runHot --mainClass SumPDF --auto
+                <CodeBlock id="runHot-windows">
+                  .\gradlew.bat :runHot --mainClass SumPDF --auto
                 </CodeBlock>
               </div>
             </CardContent>
