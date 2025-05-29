@@ -24,6 +24,13 @@ interface Converter {
 
 class PDFConverter : Converter {
 
+    companion object {
+        private val COURIER_FONT by lazy {
+            suppressAllFontWarnings()
+            PDType1Font(Standard14Fonts.FontName.COURIER)
+        }
+    }
+
     override suspend fun convert(task: ConversionTask): ConversionResult {
         val inputFile = File(task.inputFilePath)
         if (!inputFile.exists()) {
