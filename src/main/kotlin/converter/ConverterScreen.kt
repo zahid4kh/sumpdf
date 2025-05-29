@@ -36,7 +36,7 @@ fun ConverterScreen(
     if (uiState.showFileChooser) {
         FileChooserDialog(
             title = "Select Files to Convert",
-            allowedExtensions = listOf("txt", "odt", "png", "jpg", "jpeg", "svg"),
+            allowedExtensions = listOf("txt", "odt", "doc", "docx", "png", "jpg", "jpeg", "svg"),
             startDirectory = File(uiState.lastUsedDirectory?: System.getProperty("user.home")),
             onFileSelected = { file ->
                 viewModel.addFiles(listOf(file))
@@ -92,7 +92,7 @@ fun ConverterScreen(
                 onFilesDropped = { files ->
                     val validFiles = files.filter { file ->
                         val ext = file.extension.lowercase()
-                        ext in listOf("txt", "odt", "png", "jpg", "jpeg", "svg")
+                        ext in listOf("txt", "odt", "doc", "docx", "png", "jpg", "jpeg", "svg")
                     }
                     viewModel.addFiles(validFiles)
                 }

@@ -49,7 +49,8 @@ class PDFConverter : Converter {
                 "txt" -> convertTextToPdf(inputFile, outputFile)
                 "png", "jpg", "jpeg" -> convertImageToPdf(inputFile, outputFile)
                 "svg" -> convertSvgToPdf(inputFile, outputFile)
-                "odt" -> convertOdtToPdf(inputFile, outputFile)
+                "odt" -> convertOfficeToPdf(inputFile, outputFile)
+                "doc", "docx" -> convertOfficeToPdf(inputFile, outputFile)
                 else -> throw IllegalArgumentException("Unsupported file format: ${inputFile.extension}")
             }
 
@@ -267,7 +268,7 @@ class PDFConverter : Converter {
         }
     }
 
-    private fun convertOdtToPdf(inputFile: File, outputFile: File) {
+    private fun convertOfficeToPdf(inputFile: File, outputFile: File) {
         val officeManager = LocalOfficeManager.builder()
             .install()
             .build()
@@ -282,11 +283,28 @@ class PDFConverter : Converter {
             converter.convert(inputFile)
                 .to(outputFile)
                 .execute()
+
         } catch (e: OfficeException) {
-            throw RuntimeException("Failed to convert ODT file: ${e.message}", e)
+            val fileType = when (inputFile.extension.lowercase()) {
+                "doc" -> "Word document (DOC)"
+                "docx" -> "Word document (DOCX)"
+                "odt" -> "OpenDocument Text (ODT)"
+                else -> "${inputFile.extension.uppercase()} document"
+            }
+            throw RuntimeException("Failed to convert $fileType: ${e.message}", e)
         } finally {
-            officeManager.stop()
+            try {
+                officeManager.stop()
+            } catch (e: Exception) {}
         }
+    }
+
+    @Deprecated(
+        message = "Using convertOfficeToPdf instead",
+        replaceWith = ReplaceWith("convertOfficeToPdf(inputFile, outputFile)")
+    )
+    private fun convertOdtToPdf(inputFile: File, outputFile: File) {
+        convertOfficeToPdf(inputFile, outputFile)
     }
 }
 
