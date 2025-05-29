@@ -85,6 +85,75 @@ class PDFConverter : Converter {
         }
     }
 
+    private fun cleanTextForPdf(text: String): String {
+        return text
+            // tabs to 4 spaces (preserving indentation)
+            .replace("\t", "    ")
+            .replace("\u2011", "-") // non-breaking hyphen
+            .replace("\u2010", "-") // hyphen
+            .replace("\u2012", "-") // figure dash
+            .replace("\u2013", "-") // en dash
+            .replace("\u2014", "-") // em dash
+            .replace("\u2015", "-") // horizontal bar
+            .replace("\u201C", "\"") // left double quotation mark
+            .replace("\u201D", "\"") // right double quotation mark
+            .replace("\u2018", "'") // left single quotation mark
+            .replace("\u2019", "'") // right single quotation mark
+            .replace("\u2022", "*") // bullet
+            .replace("\u2026", "...") // horizontal ellipsis
+            .replace("\u00A0", " ") // non-breaking space
+            //  keep line feeds
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+            .filter { char ->
+                char == '\n' || char == ' ' || (char.code >= 32 && char.code <= 126)
+            }
+    }
+
+
+    private fun wrapLinePreserveSpacing(line: String, font: PDType1Font, fontSize: Float, maxWidth: Float): List<String> {
+        if (line.isEmpty()) return listOf("")
+
+        try {
+            val avgCharWidth = font.getStringWidth("M") / 1000 * fontSize
+            val maxCharsPerLine = (maxWidth / avgCharWidth).toInt()
+
+            if (line.length <= maxCharsPerLine) {
+                return listOf(line)
+            }
+
+            val wrappedLines = mutableListOf<String>()
+            var remainingLine = line
+
+            while (remainingLine.length > maxCharsPerLine) {
+                var splitPoint = maxCharsPerLine
+
+                for (i in (maxCharsPerLine - 10).coerceAtLeast(0) until maxCharsPerLine) {
+                    if (i < remainingLine.length) {
+                        val char = remainingLine[i]
+                        if (char == ' ' || char == '\t' || char in ".,;:!?-") {
+                            splitPoint = i + 1
+                            break
+                        }
+                    }
+                }
+
+                val linePortion = remainingLine.substring(0, splitPoint).trimEnd()
+                wrappedLines.add(linePortion)
+
+                remainingLine = remainingLine.substring(splitPoint).trimStart()
+            }
+
+            if (remainingLine.isNotEmpty()) {
+                wrappedLines.add(remainingLine)
+            }
+
+            return wrappedLines.ifEmpty { listOf("") }
+        } catch (e: Exception) {
+            return listOf(line)
+        }
+    }
+
     private fun convertImageToPdf(inputFile: File, outputFile: File) {
         PDDocument().use { document ->
             val image = ImageIO.read(inputFile)
