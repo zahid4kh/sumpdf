@@ -5,16 +5,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import dialogs.InfoDialog
 import model.ConversionResult
+import org.apache.batik.svggen.SVGCSSStyler.style
+import org.jetbrains.compose.resources.painterResource
+import sumpdf.resources.Res
+import sumpdf.resources.combine_svgrepo_com
+import sumpdf.resources.sumpdf
 import java.io.File
 
 @Composable
@@ -25,49 +31,36 @@ fun ConversionResultDialog(
     val successful = results.count { it.success }
     val failed = results.size - successful
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight(0.7f),
-            shape = MaterialTheme.shapes.large
-        ) {
+    InfoDialog(
+        title = "Conversion Results",
+        content = {
             Column(
-                modifier = Modifier.padding(16.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Conversion Results",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
                     text = "Successfully converted: $successful | Failed: $failed",
-                    style = MaterialTheme.typography.bodyMedium
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(results) { result ->
                         ResultItem(result)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Close")
-                }
             }
-        }
-    }
+        },
+        onClose = onDismiss
+    )
 }
 
 @Composable
@@ -77,22 +70,25 @@ private fun ResultItem(result: ConversionResult) {
     val outputFile = task.outputFilePath?.let { File(it).name } ?: "N/A"
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (result.success)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            else
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = when (task.status) {
                     ConversionStatus.COMPLETED -> Icons.Default.Check
                     ConversionStatus.FAILED -> Icons.Default.Error
-                    else -> Icons.Default.Close
+                    else -> Icons.Default.Error
                 },
                 contentDescription = "Conversion status",
                 tint = when (task.status) {
@@ -108,22 +104,26 @@ private fun ResultItem(result: ConversionResult) {
             ) {
                 Text(
                     text = inputFile,
-                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 if (result.success) {
                     Text(
-                        text = "Converted to: $outputFile",
-                        style = MaterialTheme.typography.bodySmall,
+                        text = "→ $outputFile",
+                        fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
                         text = result.error ?: "Unknown error",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
+                        color = MaterialTheme.colorScheme.error,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
