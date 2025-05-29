@@ -16,6 +16,8 @@ import org.jodconverter.local.LocalConverter
 import org.jodconverter.local.office.LocalOfficeManager
 import java.io.File
 import java.io.FileOutputStream
+import java.util.logging.Level
+import java.util.logging.Logger
 import javax.imageio.ImageIO
 
 interface Converter {
@@ -51,9 +53,16 @@ class PDFConverter : Converter {
                 else -> throw IllegalArgumentException("Unsupported file format: ${inputFile.extension}")
             }
 
-            ConversionResult(task.copy(outputFilePath = outputFile.absolutePath, status = ConversionStatus.COMPLETED), true)
+            if (outputFile.exists() && outputFile.length() > 0) {
+                ConversionResult(task.copy(outputFilePath = outputFile.absolutePath, status = ConversionStatus.COMPLETED), true)
+            } else {
+                ConversionResult(task.copy(status = ConversionStatus.FAILED, error = "Output file was not created properly"), false, "Output file was not created properly")
+            }
         } catch (e: Exception) {
             e.printStackTrace()
+            if (outputFile.exists()) {
+                outputFile.delete()
+            }
             ConversionResult(task.copy(status = ConversionStatus.FAILED, error = e.message), false, e.message)
         }
     }
@@ -68,26 +77,86 @@ class PDFConverter : Converter {
 
     private fun convertTextToPdf(inputFile: File, outputFile: File) {
         PDDocument().use { document ->
-            val page = PDPage(PDRectangle.A4)
-            document.addPage(page)
+            val text = inputFile.readText(Charsets.UTF_8)
+            val cleanedText = cleanTextForPdf(text)
+            val lines = cleanedText.split("\n")
 
-            PDPageContentStream(document, page).use { contentStream ->
-                val text = inputFile.readText()
-                val lines = text.split("\n")
+            val font = COURIER_FONT
+            val fontSize = 10f
+            val leading = 12f
+            val margin = 50f
+            val pageWidth = PDRectangle.A4.width
+            val pageHeight = PDRectangle.A4.height
+            val maxWidth = pageWidth - (2 * margin)
 
-                contentStream.beginText()
-                contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
-                contentStream.newLineAtOffset(50f, 700f)
-                contentStream.setLeading(14.5f)
+            var currentPage: PDPage? = null
+            var contentStream: PDPageContentStream? = null
+            var yPosition = pageHeight - margin
 
+            try {
                 for (line in lines) {
-                    contentStream.showText(line)
-                    contentStream.newLine()
+                    if (currentPage == null || yPosition < margin + leading) {
+                        contentStream?.let {
+                            try {
+                                it.endText()
+                                it.close()
+                            } catch (e: Exception) {}
+                        }
+
+                        currentPage = PDPage(PDRectangle.A4)
+                        document.addPage(currentPage)
+
+                        contentStream = PDPageContentStream(document, currentPage)
+                        contentStream.beginText()
+                        contentStream.setFont(font, fontSize)
+                        contentStream.setLeading(leading)
+
+                        yPosition = pageHeight - margin
+                        contentStream.newLineAtOffset(margin, yPosition)
+                    }
+
+                    val wrappedLines = wrapLinePreserveSpacing(line, font, fontSize, maxWidth)
+
+                    for (wrappedLine in wrappedLines) {
+                        if (yPosition < margin + leading) {
+                            contentStream?.let {
+                                try {
+                                    it.endText()
+                                    it.close()
+                                } catch (e: Exception) {}
+                            }
+
+                            currentPage = PDPage(PDRectangle.A4)
+                            document.addPage(currentPage)
+
+                            contentStream = PDPageContentStream(document, currentPage)
+                            contentStream.beginText()
+                            contentStream.setFont(font, fontSize)
+                            contentStream.setLeading(leading)
+
+                            yPosition = pageHeight - margin
+                            contentStream.newLineAtOffset(margin, yPosition)
+                        }
+
+                        try {
+                            contentStream?.showText(wrappedLine)
+                            contentStream?.newLine()
+                            yPosition -= leading
+                        } catch (e: Exception) {
+                            println("Warning: Could not render line: $wrappedLine - ${e.message}")
+                            contentStream?.newLine()
+                            yPosition -= leading
+                        }
+                    }
                 }
-
-                contentStream.endText()
+            } finally {
+                contentStream?.let {
+                    try {
+                        it.endText()
+                        it.close()
+                    } catch (e: Exception) {}
+                }
             }
-
             document.save(outputFile)
         }
     }
