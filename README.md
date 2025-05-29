@@ -5,23 +5,25 @@
 ## Features
 
 - **Combine PDFs**
+
   - Merge multiple PDF files into one.
 
 - **Convert to PDF**
   - Convert `txt`, `odt`, `png`, `jpg`, `jpeg`, `svg` files into PDF documents.
 
-
 ## 🖥️ Screenshots
 
 ### Home Screen
+
 ![Home Screen Placeholder](screenshots/home.png)
 
 ### Combine PDFs
+
 ![Combine PDFs Placeholder](screenshots/combine.png)
 
 ### Convert to PDF
-![Convert to PDF Placeholder](screenshots/convert.png)
 
+![Convert to PDF Placeholder](screenshots/convert.png)
 
 ## Build from source
 
@@ -30,13 +32,14 @@ Clone the repository:
 ```bash
 git clone https://github.com/zahid4kh/sumpdf.git
 cd sumpdf
-````
+```
 
 - Run the app normally:
 
 ```bash
 ./gradlew :run
 ```
+
 OR
 
 - Run the app with hot-reload:
@@ -44,7 +47,6 @@ OR
 ```kotlin
 ./gradlew :runHot --mainClass SumPDF --auto
 ```
-
 
 ## Contribution
 
