@@ -138,6 +138,45 @@ export default function SumPDFWebsite() {
             open-source.
           </p>
 
+          {/* Advantages Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-3xl mx-auto">
+            <div className={`p-6 border ${themeClasses.border} rounded-2xl`}>
+              <h3 className="text-lg font-semibold mb-2">
+                100% Free & Open Source
+              </h3>
+              <p className="text-sm opacity-90">
+                No hidden fees, no trials, and no credit card required. Forever
+                free and transparent.
+              </p>
+            </div>
+
+            <div className={`p-6 border ${themeClasses.border} rounded-2xl`}>
+              <h3 className="text-lg font-semibold mb-2">
+                Works Completely Offline
+              </h3>
+              <p className="text-sm opacity-90">
+                Process PDFs without internet connection. Your files never leave
+                your computer.
+              </p>
+            </div>
+
+            <div className={`p-6 border ${themeClasses.border} rounded-2xl`}>
+              <h3 className="text-lg font-semibold mb-2">No Account Needed</h3>
+              <p className="text-sm opacity-90">
+                Start using immediately. No sign-ups, no accounts, no email
+                required.
+              </p>
+            </div>
+
+            <div className={`p-6 border ${themeClasses.border} rounded-2xl`}>
+              <h3 className="text-lg font-semibold mb-2">Privacy First</h3>
+              <p className="text-sm opacity-90">
+                Your documents stay private. No data collection, no cloud
+                uploads, no tracking.
+              </p>
+            </div>
+          </div>
+
           <div className="flex gap-4 justify-center mb-12">
             <Button
               onClick={scrollToDownloads}
@@ -160,7 +199,7 @@ export default function SumPDFWebsite() {
           {/* Hero Image */}
           <img
             src="/images/home.png"
-            alt="SumPDF Application Screenshot"
+            alt="SumPDF Application Interface - PDF Manipulation Made Easy"
             className={`rounded-2xl border ${themeClasses.border} mx-auto w-full object-cover aspect-video`}
             width={1200}
             height={675}
