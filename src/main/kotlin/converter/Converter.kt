@@ -107,7 +107,6 @@ class PDFConverter : Converter {
     }
 
     private fun convertSvgToPdf(inputFile: File, outputFile: File) {
-
         val tempPng = File.createTempFile("svg_conv", ".png")
         tempPng.deleteOnExit()
 
