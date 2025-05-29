@@ -26,7 +26,9 @@ import {
   Monitor,
   Copy,
   Check,
+  UserRoundXIcon,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function SumPDFWebsite() {
   const [isDark, setIsDark] = useState(false);
@@ -309,7 +311,13 @@ export default function SumPDFWebsite() {
                   isDark ? "hover:bg-gray-900" : "hover:bg-gray-100"
                 }`}
               >
-                <Monitor className="mr-2 h-4 w-4" />
+                <Image
+                  src="/windows.svg"
+                  alt="Windows"
+                  width={16}
+                  height={16}
+                  className="mr-2"
+                />
                 Windows
               </TabsTrigger>
               <TabsTrigger
@@ -322,7 +330,13 @@ export default function SumPDFWebsite() {
                   isDark ? "hover:bg-gray-900" : "hover:bg-gray-100"
                 }`}
               >
-                <Monitor className="mr-2 h-4 w-4" />
+                <Image
+                  src="/linux.svg"
+                  alt="Linux"
+                  width={16}
+                  height={16}
+                  className="mr-2"
+                />
                 Linux
               </TabsTrigger>
             </TabsList>
@@ -372,9 +386,8 @@ export default function SumPDFWebsite() {
                     <div className="transition-all duration-200">
                       {windowsInstallType === "msi" ? (
                         <>
-                          <p className="text-sm">
-                            Recommended for most users. Installs SumPDF on your
-                            C drive
+                          <p className="text-sm padding-2 mb-1">
+                            Installs SumPDF on your C drive
                           </p>
 
                           <Button
