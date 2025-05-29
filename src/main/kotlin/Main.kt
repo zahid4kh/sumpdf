@@ -8,12 +8,11 @@ import combiner.CombinerViewModel
 import converter.ConverterViewModel
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import org.jetbrains.compose.resources.painterResource
-import theme.AppTheme
-import java.awt.Dimension
 import org.koin.core.context.startKoin
 import org.koin.java.KoinJavaComponent.getKoin
 import sumpdf.resources.Res
 import sumpdf.resources.sumpdf
+import java.awt.Dimension
 
 fun main() = application {
     startKoin {
@@ -25,12 +24,12 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(size = DpSize(800.dp, 600.dp)),
+        state = rememberWindowState(size = DpSize(1400.dp, 900.dp)),
         title = "SumPDF",
         alwaysOnTop = true,
         icon = painterResource(Res.drawable.sumpdf)
     ) {
-        window.minimumSize = Dimension(800, 600)
+        window.minimumSize = Dimension(1000, 700)
 
         ProvidePreComposeLocals {
             App(
