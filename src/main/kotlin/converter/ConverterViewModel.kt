@@ -33,7 +33,6 @@ class ConverterViewModel(
                 lastUsedDirectory = settings.lastUsedDirectory
             )
 
-//              might add a list of previous conversions
             val previousTasks = database.getTasks()
             if (previousTasks.isNotEmpty()) {
                 _uiState.value = _uiState.value.copy(
@@ -102,6 +101,22 @@ class ConverterViewModel(
             val settings = database.getConverterSettings()
             database.saveConverterSettings(settings.copy(lastUsedDirectory = path))
         }
+    }
+
+    fun showFileChooser() {
+        _uiState.value = _uiState.value.copy(showFileChooser = true)
+    }
+
+    fun hideFileChooser() {
+        _uiState.value = _uiState.value.copy(showFileChooser = false)
+    }
+
+    fun showFolderChooser() {
+        _uiState.value = _uiState.value.copy(showFolderChooser = true)
+    }
+
+    fun hideFolderChooser() {
+        _uiState.value = _uiState.value.copy(showFolderChooser = false)
     }
 
     fun convertFiles() {
@@ -214,6 +229,8 @@ class ConverterViewModel(
         val selectedOutputPath: String? = null,
         val recentOutputPaths: List<String> = emptyList(),
         val lastUsedDirectory: String? = null,
-        val defaultOutputPath: String? = null
+        val defaultOutputPath: String? = null,
+        val showFileChooser: Boolean = false,
+        val showFolderChooser: Boolean = false
     )
 }

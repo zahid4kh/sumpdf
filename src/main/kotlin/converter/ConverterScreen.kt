@@ -14,10 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import java.awt.FileDialog
-import java.awt.Frame
+import dialogs.file.FileChooserDialog
+import dialogs.file.FolderChooserDialog
 import java.io.File
-import java.io.FilenameFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +30,36 @@ fun ConverterScreen(
         ConversionResultDialog(
             results = uiState.conversionResults,
             onDismiss = viewModel::dismissResultDialog
+        )
+    }
+
+    if (uiState.showFileChooser) {
+        FileChooserDialog(
+            title = "Select Files to Convert",
+            allowedExtensions = listOf("txt", "odt", "png", "jpg", "jpeg", "svg"),
+            startDirectory = File(uiState.lastUsedDirectory?: System.getProperty("user.home")),
+            onFileSelected = { file ->
+                viewModel.addFiles(listOf(file))
+                viewModel.setLastUsedDirectory(file.parentFile.absolutePath)
+                viewModel.hideFileChooser()
+            },
+            onCancel = {
+                viewModel.hideFileChooser()
+            }
+        )
+    }
+
+    if (uiState.showFolderChooser) {
+        FolderChooserDialog(
+            title = "Select Output Directory",
+            startDirectory = File(uiState.lastUsedDirectory?: System.getProperty("user.home")),
+            onFolderSelected = { folder ->
+                viewModel.selectOutputPath(folder.absolutePath)
+                viewModel.hideFolderChooser()
+            },
+            onCancel = {
+                viewModel.hideFolderChooser()
+            }
         )
     }
 
@@ -78,49 +107,18 @@ fun ConverterScreen(
             OutputPathSelection(
                 selectedPath = uiState.selectedOutputPath,
                 recentPaths = uiState.recentOutputPaths,
-                onPathSelected = viewModel::selectOutputPath
+                onPathSelected = viewModel::selectOutputPath,
+                onShowFolderChooser = viewModel::showFolderChooser
             )
 
             BottomBar(
                 fileCount = uiState.files.size,
                 isConverting = uiState.isConverting,
                 conversionProgress = uiState.conversionProgress,
-                onAddFiles = {
-                    openFileDialog(
-                        lastUsedDirectory = uiState.lastUsedDirectory,
-                        onFilesSelected = { files, directory ->
-                            viewModel.addFiles(files)
-                            viewModel.setLastUsedDirectory(directory)
-                        }
-                    )
-                },
+                onAddFiles = viewModel::showFileChooser,
                 onClearFiles = viewModel::clearFiles,
                 onConvertFiles = viewModel::convertFiles
             )
         }
-    }
-}
-
-private fun openFileDialog(
-    lastUsedDirectory: String?,
-    onFilesSelected: (List<File>, String) -> Unit
-) {
-    val dialog = FileDialog(Frame(), "Select Files to Convert", FileDialog.LOAD)
-    dialog.isMultipleMode = true
-
-    if (lastUsedDirectory != null) {
-        dialog.directory = lastUsedDirectory
-    }
-
-    dialog.filenameFilter = FilenameFilter { _, name ->
-        val ext = name.substringAfterLast('.', "").lowercase()
-        ext in listOf("txt", "odt", "png", "jpg", "jpeg", "svg")
-    }
-
-    dialog.isVisible = true
-
-    val files = dialog.files.toList()
-    if (files.isNotEmpty() && dialog.directory != null) {
-        onFilesSelected(files, dialog.directory)
     }
 }

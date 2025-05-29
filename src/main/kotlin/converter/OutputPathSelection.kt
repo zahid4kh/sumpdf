@@ -13,16 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import java.awt.FileDialog
-import java.awt.Frame
 import java.io.File
-
 
 @Composable
 fun OutputPathSelection(
     selectedPath: String?,
     recentPaths: List<String>,
-    onPathSelected: (String?) -> Unit
+    onPathSelected: (String?) -> Unit,
+    onShowFolderChooser: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -49,17 +47,7 @@ fun OutputPathSelection(
         )
 
         Button(
-            onClick = {
-                val dialog = FileDialog(Frame(), "Select Output Directory", FileDialog.SAVE)
-                dialog.file = null
-                dialog.isMultipleMode = false
-                dialog.isVisible = true
-
-                if (dialog.directory != null) {
-                    val selectedDir = dialog.directory
-                    onPathSelected(selectedDir)
-                }
-            },
+            onClick = onShowFolderChooser,
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
