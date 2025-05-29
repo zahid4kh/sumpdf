@@ -1,3 +1,4 @@
+import androidx.compose.animation.core.animateSizeAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -6,14 +7,19 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import sumpdf.resources.Res
 import sumpdf.resources.combine_svgrepo_com
@@ -26,6 +32,8 @@ fun MainNavigationScreen(
     onNavigateToCombiner: () -> Unit,
     onNavigateToConverter: () -> Unit
 ) {
+    val cardHeight by remember { mutableStateOf(370.dp) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,38 +70,44 @@ fun MainNavigationScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Welcome to SumPDF",
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ){
+                Text(
+                    text = "Welcome to SumPDF",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontSize = 50.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
 
-            Text(
-                text = "Your all-in-one PDF tool",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 48.dp)
-            )
+                Text(
+                    text = "Your all-in-one PDF tool",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 48.dp)
+                )
 
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Card(
+                OutlinedCard(
                     modifier = Modifier
                         .weight(1f)
-                        .height(200.dp)
+                        .height(cardHeight)
+                        //.width(cardWidth)
                         .pointerHoverIcon(icon = PointerIcon.Hand),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToCombiner,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    onClick = onNavigateToCombiner
                 ) {
                     Column(
                         modifier = Modifier
@@ -124,16 +138,16 @@ fun MainNavigationScreen(
                     }
                 }
 
-                Card(
+                Spacer(modifier = Modifier.width(16.dp))
+
+                OutlinedCard(
                     modifier = Modifier
                         .weight(1f)
-                        .height(200.dp)
+                        .height(cardHeight)
+                        //.width(cardWidth)
                         .pointerHoverIcon(icon = PointerIcon.Hand),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToConverter,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
+                    onClick = onNavigateToConverter
                 ) {
                     Column(
                         modifier = Modifier
