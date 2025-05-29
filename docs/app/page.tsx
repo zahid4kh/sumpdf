@@ -37,6 +37,9 @@ export default function SumPDFWebsite() {
     "msi" | "portable"
   >("msi");
 
+  const GITHUB_RELEASE_URL =
+    "https://github.com/zahid4kh/sumpdf/releases/download/1.0.0";
+
   const toggleTheme = () => {
     setIsDark(!isDark);
   };
@@ -51,6 +54,11 @@ export default function SumPDFWebsite() {
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
+  };
+
+  const downloadFile = (filename: string) => {
+    const url = `${GITHUB_RELEASE_URL}/${filename}`;
+    window.location.href = url;
   };
 
   const themeClasses = {
@@ -370,6 +378,7 @@ export default function SumPDFWebsite() {
                           </p>
 
                           <Button
+                            onClick={() => downloadFile("sumpdf-1.0.0.msi")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -390,6 +399,7 @@ export default function SumPDFWebsite() {
                       ) : (
                         <>
                           <Button
+                            onClick={() => downloadFile("sumpdf-1.0.0.exe")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -434,6 +444,9 @@ export default function SumPDFWebsite() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <Button
+                      onClick={() =>
+                        downloadFile("sumpdf_1.0.0-1_amd64-wm.deb")
+                      }
                       className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                     >
                       <Download className="mr-2 h-4 w-4" />
@@ -451,7 +464,7 @@ export default function SumPDFWebsite() {
                               <div
                                 className={`${themeClasses.bgAlt} ${themeClasses.textAlt} rounded-xl p-4 font-mono text-sm ${themeClasses.border} border`}
                               >
-                                sudo dpkg -i sumpdf.deb
+                                sudo dpkg -i sumpdf_1.0.0-1_amd64-wm.deb
                               </div>
                               <TooltipProvider>
                                 <Tooltip>
@@ -462,7 +475,7 @@ export default function SumPDFWebsite() {
                                       className={`absolute top-2 right-2 h-8 w-8 p-0 ${themeClasses.border} ${themeClasses.bg} ${themeClasses.text} hover:opacity-90 rounded-lg`}
                                       onClick={() =>
                                         copyToClipboard(
-                                          "sudo dpkg -i sumpdf.deb",
+                                          "sudo dpkg -i sumpdf_1.0.0-1_amd64-wm.deb",
                                           "linux-install"
                                         )
                                       }
