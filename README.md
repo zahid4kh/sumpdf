@@ -9,7 +9,7 @@
   - Merge multiple PDF files into one.
 
 - **Convert to PDF**
-  - Convert `txt`, `odt`, `png`, `jpg`, `jpeg`, `svg` files into PDF documents.
+  - Convert `txt`, `odt`, `png`, `jpg`, `jpeg`, `svg`, `doc/dcox` files into PDF documents.
 
 ## 🖥️ Screenshots
 
