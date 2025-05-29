@@ -145,3 +145,27 @@ class PDFConverter : Converter {
         }
     }
 }
+
+private fun suppressAllFontWarnings() {
+    try {
+        val fontLoggers = listOf(
+            "org.apache.fontbox",
+            "org.apache.pdfbox.pdmodel.font",
+            "org.apache.fontbox.ttf",
+            "org.apache.fontbox.ttf.gsub",
+            "org.apache.fontbox.ttf.GlyphSubstitutionTable",
+            "org.apache.fontbox.ttf.gsub.GlyphSubstitutionDataExtractor",
+            "org.apache.pdfbox.pdmodel.font.FileSystemFontProvider",
+            "org.apache.pdfbox.pdmodel.font.FontMapperImpl",
+            "org.apache.fontbox.ttf.CmapSubtable"
+        )
+
+        fontLoggers.forEach { loggerName ->
+            Logger.getLogger(loggerName).level = Level.OFF
+        }
+
+        Logger.getLogger("org.apache.fontbox").level = Level.OFF
+        Logger.getLogger("org.apache.pdfbox").level = Level.SEVERE
+
+    } catch (e: Exception) { }
+}
