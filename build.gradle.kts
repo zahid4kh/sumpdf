@@ -67,7 +67,11 @@ compose.desktop {
         mainClass = "SumPDF"
 
         nativeDistributions {
-            jvmArgs += listOf("-Dfile.encoding=UTF-8")
+            jvmArgs += listOf(
+                "-Dfile.encoding=UTF-8",
+                "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+            )
             buildTypes.release.proguard {
                 configurationFiles.from("proguard-rules.pro")
                 isEnabled = true
