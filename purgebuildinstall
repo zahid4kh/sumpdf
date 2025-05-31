@@ -1,0 +1,30 @@
+#!/bin/bash
+echo "current dir is: "
+pwd
+echo "removing sumpdf from the system, also purging config files"
+echo " "
+sudo dpkg -P sumpdf
+echo " "
+
+echo "creating the .deb package"
+echo " "
+
+./gradlew clean
+rm -rf deb-temp/
+./gradlew build
+echo " "
+echo "done building the proj. now packaging the app with './gradlew packageDebWithWMClass' task"
+./gradlew packageDebWithWMClass
+echo " "
+
+echo "installing the debian package"
+cd build/compose/binaries/main-release/deb
+sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb
+echo " "
+echo "app installed"
+echo " "
+
+cd ../../../../../
+
+echo "current workdir is:"
+pwd
