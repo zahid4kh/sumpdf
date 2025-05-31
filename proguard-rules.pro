@@ -6,18 +6,9 @@
 -dontwarn net.miginfocom.swing.MigLayout
 -dontwarn sun.java2d.cmm.**
 
-# Allow sun.misc.Unsafe usage - More comprehensive
--keep class sun.misc.Unsafe { *; }
--keep class jdk.internal.misc.Unsafe { *; }
--keepclassmembers class sun.misc.Unsafe {
-    *;
-}
--keepclassmembers class jdk.internal.misc.Unsafe {
-    *;
-}
+
 -dontwarn sun.misc.Unsafe
 -dontwarn jdk.internal.misc.Unsafe
--keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.internal.UnsafeAllocator { *; }
 -keep class com.google.gson.internal.** { *; }
 
@@ -271,6 +262,60 @@
     void defineFunctionProperties(java.lang.String[], java.lang.Class, int);
     void defineProperty(java.lang.String, java.lang.Class, int);
 }
+
+# XML/SAX Support for Batik - Critical for SVG processing
+-keep class javax.xml.** { *; }
+-keep class org.xml.sax.** { *; }
+-keep class org.xml.sax.ext.** { *; }
+-keep class org.xml.sax.helpers.** { *; }
+-keep class com.sun.org.apache.xerces.** { *; }
+-keep class com.sun.org.apache.xalan.** { *; }
+
+# Batik SAX/DOM classes - Essential for SVG transcoding
+-keep class org.apache.batik.dom.** { *; }
+-keep class org.apache.batik.anim.dom.** { *; }
+-keep class org.apache.batik.parser.** { *; }
+-keep class org.apache.batik.transcoder.** { *; }
+-keep class org.apache.batik.transcoder.image.** { *; }
+
+# XML Parser implementations
+-keep class * implements org.xml.sax.XMLReader { *; }
+-keep class * implements org.xml.sax.ext.LexicalHandler { *; }
+-keep class * implements org.xml.sax.ContentHandler { *; }
+-keep class * implements org.xml.sax.ErrorHandler { *; }
+
+# Keep XML property setters/getters
+-keepclassmembers class * {
+    *** setProperty(...);
+    *** getProperty(...);
+    *** setFeature(...);
+    *** getFeature(...);
+}
+
+# Suppress XML warnings but keep functionality
+-dontwarn javax.xml.**
+-dontwarn org.xml.sax.**
+-dontwarn com.sun.org.apache.xerces.**
+-dontwarn com.sun.org.apache.xalan.**
+
+# Batik CSS Parser - Critical for SVG processing
+-keep class org.apache.batik.css.parser.** { *; }
+-keep class org.apache.batik.css.engine.** { *; }
+-keep class org.apache.batik.css.** { *; }
+
+# Batik Bridge classes that load CSS dynamically
+-keep class org.apache.batik.bridge.** { *; }
+-keep class org.apache.batik.gvt.** { *; }
+-keep class org.apache.batik.script.** { *; }
+
+# Keep all Batik parser implementations
+-keep class * extends org.apache.batik.css.parser.AbstractParser { *; }
+-keep class * implements org.apache.batik.css.parser.CSSParser { *; }
+
+# Dynamic class loading for Batik
+-keepnames class org.apache.batik.css.parser.Parser
+-keepnames class org.apache.batik.css.engine.CSSEngine
+-keepnames class org.apache.batik.dom.ExtensibleDOMImplementation
 
 # Don't warn about optional dependencies
 -dontwarn java.awt.**
