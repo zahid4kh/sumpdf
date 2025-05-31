@@ -5,26 +5,29 @@
 ## ✨ Features
 
 ### 📄 Combine PDFs
+
 - Merge multiple PDF files into a single document
 - Drag & drop support for easy file selection
 - Custom output file naming and location
 - Preserves original document quality
 
 ### 🔄 Convert to PDF
+
 - **Text files** (`.txt`) - Instant conversion with proper formatting
 - **Images** (`.png`, `.jpg`, `.jpeg`) - Maintains aspect ratio and quality
 - **Vector graphics** (`.svg`) - Rasterization via Apache Batik
 - **Documents** (`.doc`, `.docx`, `.odt`) - Professional conversion via LibreOffice
 
 ### 🎨 User Experience
+
 - **Modern UI** with dark/light mode support
 - **Real-time progress tracking** with file-by-file feedback
 - **Drag & drop interface** for intuitive file management
 - **Recent folders** for quick access to output locations
 - **Batch processing** - convert multiple files simultaneously
 
-
 ### Document Conversion (doc/docx/odt)
+
 - **LibreOffice** must be installed separately
   - **Windows**: Download from [LibreOffice.org](https://www.libreoffice.org/download/download/)
   - **Linux**: `sudo apt install libreoffice` (Ubuntu/Debian) or equivalent
@@ -32,11 +35,11 @@
 
 ## ⚡ Performance Expectations
 
-| File Type | Conversion Speed        | Notes                        |
-|-----------|-------------------------|------------------------------|
-| Text (`.txt`) | Instant                 | < 1 second                   |
-| Images (`.png`, `.jpg`, `.jpeg`) | Instant                 | < 1 second                   |
-| Vector (`.svg`) | Almost instant          | ~ 1 second                   |
+| File Type                           | Conversion Speed        | Notes                        |
+| ----------------------------------- | ----------------------- | ---------------------------- |
+| Text (`.txt`)                       | Instant                 | < 1 second                   |
+| Images (`.png`, `.jpg`, `.jpeg`)    | Instant                 | < 1 second                   |
+| Vector (`.svg`)                     | Almost instant          | ~ 1 second                   |
 | Documents (`.doc`, `.docx`, `.odt`) | **~9 seconds per file** | Requires LibreOffice startup |
 
 > **Note**: Document conversions are slower due to LibreOffice process management. The first conversion may take longer as LibreOffice initializes.
@@ -44,23 +47,29 @@
 ## 🖥️ Screenshots
 
 ### Home Screen
+
 ![Home Screen](screenshots/home.png)
 
 ### Combine PDFs
+
 ![Combine PDFs](screenshots/combine.png)
 
 ### Convert to PDF
+
 ![Convert to PDF](screenshots/convert.png)
 
 ## 🚀 Installation
 
 ### Download Releases
+
 1. Go to [Releases](https://github.com/zahid4kh/sumpdf/releases)
 2. Download the appropriate installer:
-  - **Windows**: `.exe` or `.msi` installer
-  - **Linux**: `.deb` package
+
+- **Windows**: `.exe` or `.msi` installer
+- **Linux**: `.deb` package
 
 ### Linux Installation
+
 ```bash
 # Download the .deb file and install
 sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb
@@ -70,16 +79,19 @@ sudo apt install -f
 ```
 
 ### Windows Installation
+
 - Run the `.exe` installer and follow the setup wizard
 - Administrator privileges may be required
 
 ## 🔧 Build from Source
 
 ### Prerequisites
+
 - **JDK 17+**
 - **Gradle 8.0+**
 
 ### Build Steps
+
 ```bash
 # Clone the repository
 git clone https://github.com/zahid4kh/sumpdf.git
@@ -94,7 +106,7 @@ cd sumpdf
 # Create distribution packages
 ./gradlew packageDeb          # Linux .deb
 ./gradlew packageMsi          # Windows .msi
-./gradlew packageExe          # Windows .exe  
+./gradlew packageExe          # Windows .exe
 ./gradlew packageDmg          # macOS .dmg
 ```
 
@@ -118,6 +130,7 @@ cd sumpdf
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
 
 ### Development Setup
+
 1. Install LibreOffice for testing document conversion
 2. Use `./gradlew :runHot` for hot-reload development
 3. Test on multiple platforms before submitting PRs
