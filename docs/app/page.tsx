@@ -19,14 +19,11 @@ import {
 import {
   Github,
   Download,
-  Sun,
-  Moon,
   Combine,
   FileText,
-  Monitor,
   Copy,
   Check,
-  UserRoundXIcon,
+  AlertTriangle,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -50,7 +47,7 @@ export default function SumPDFWebsite() {
   const [isLibreOfficeDialogOpen, setIsLibreOfficeDialogOpen] = useState(false);
 
   const GITHUB_RELEASE_URL =
-    "https://github.com/zahid4kh/sumpdf/releases/download/1.0.0";
+    "https://github.com/zahid4kh/sumpdf/releases/download/1.1.0";
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -440,7 +437,7 @@ export default function SumPDFWebsite() {
                           </p>
 
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.0.0.msi")}
+                            onClick={() => downloadFile("sumpdf-1.1.0.msi")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -461,7 +458,7 @@ export default function SumPDFWebsite() {
                       ) : (
                         <>
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.0.0.exe")}
+                            onClick={() => downloadFile("sumpdf-1.1.0.exe")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -526,7 +523,7 @@ export default function SumPDFWebsite() {
                               <div
                                 className={`${themeClasses.bgAlt} ${themeClasses.textAlt} rounded-xl p-4 font-mono text-sm ${themeClasses.border} border`}
                               >
-                                sudo dpkg -i sumpdf_1.0.0-1_amd64-wm.deb
+                                sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb
                               </div>
                               <TooltipProvider>
                                 <Tooltip>
