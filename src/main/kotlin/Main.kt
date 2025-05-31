@@ -16,6 +16,10 @@ import java.awt.Dimension
 
 fun main() = application {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog")
+
+    System.setProperty("jodconverter.document.format.registry", "simple")
+    System.setProperty("com.google.gson.internal.UnsafeAllocator.disabled", "false")
+
     startKoin {
         modules(appModule)
     }
