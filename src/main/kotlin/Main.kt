@@ -15,6 +15,7 @@ import sumpdf.resources.sumpdf
 import java.awt.Dimension
 
 fun main() = application {
+    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog")
     startKoin {
         modules(appModule)
     }
