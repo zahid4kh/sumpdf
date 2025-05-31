@@ -115,6 +115,7 @@ fun ConverterScreen(
                 fileCount = uiState.files.size,
                 isConverting = uiState.isConverting,
                 conversionProgress = uiState.conversionProgress,
+                currentlyConverting = uiState.currentlyConverting,
                 onAddFiles = viewModel::showFileChooser,
                 onClearFiles = viewModel::clearFiles,
                 onConvertFiles = viewModel::convertFiles

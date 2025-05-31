@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -25,6 +27,7 @@ fun BottomBar(
     fileCount: Int,
     isConverting: Boolean,
     conversionProgress: Float,
+    currentlyConverting: String?,
     onAddFiles: () -> Unit,
     onClearFiles: () -> Unit,
     onConvertFiles: () -> Unit
@@ -37,14 +40,41 @@ fun BottomBar(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            LinearProgressIndicator(
-                progress = { conversionProgress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (currentlyConverting != null) {
+                    Text(
+                        text = currentlyConverting,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                LinearProgressIndicator(
+                    progress = { conversionProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "${(conversionProgress * 100).toInt()}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
         BottomAppBar(
