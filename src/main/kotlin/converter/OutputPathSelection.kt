@@ -120,7 +120,7 @@ fun OutputPathSelection(
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(
-                    text = selectedPath.substring(selectedPath.lastIndexOf(File.separator) + 1),
+                    text = selectedPath,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
