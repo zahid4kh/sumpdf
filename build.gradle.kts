@@ -71,7 +71,7 @@ compose.desktop {
                 configurationFiles.from("proguard-rules.pro")
                 isEnabled = true
                 obfuscate = false
-                optimize = true
+                optimize = false
             }
 
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
