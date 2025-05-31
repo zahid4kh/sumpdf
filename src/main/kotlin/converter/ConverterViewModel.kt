@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import model.ConversionResult
 import model.FileItem
 import java.io.File
@@ -139,22 +140,28 @@ class ConverterViewModel(
 
             _uiState.value = _uiState.value.copy(
                 conversionTasks = tasks,
-                conversionProgress = 0f
+                conversionProgress = 0f,
+                currentlyConverting = null
             )
 
             database.saveTasks(tasks)
 
             val results = mutableListOf<ConversionResult>()
-            var completedTasks = 0
 
-            for (task in tasks) {
+            for ((index, task) in tasks.withIndex()) {
+                val fileName = File(task.inputFilePath).name
+                _uiState.value = _uiState.value.copy(
+                    currentlyConverting = "Converting: $fileName (${index + 1}/${tasks.size})"
+                )
+
                 updateTaskStatus(task.id, ConversionStatus.IN_PROGRESS)
 
-                val result = converter.convert(task)
+                val result = withContext(Dispatchers.IO) {
+                    converter.convert(task)
+                }
                 results.add(result)
 
-                completedTasks++
-                val progress = completedTasks.toFloat() / tasks.size
+                val progress = (index + 1).toFloat() / tasks.size
                 _uiState.value = _uiState.value.copy(conversionProgress = progress)
 
                 updateTaskStatus(
@@ -167,7 +174,8 @@ class ConverterViewModel(
             _uiState.value = _uiState.value.copy(
                 isConverting = false,
                 conversionResults = results,
-                showResultDialog = true
+                showResultDialog = true,
+                currentlyConverting = null
             )
 
             val allTasks = _uiState.value.previousTasks + _uiState.value.conversionTasks
@@ -222,6 +230,7 @@ class ConverterViewModel(
         val files: List<FileItem> = emptyList(),
         val isConverting: Boolean = false,
         val conversionProgress: Float = 0f,
+        val currentlyConverting: String? = null,
         val conversionTasks: List<ConversionTask> = emptyList(),
         val previousTasks: List<ConversionTask> = emptyList(),
         val conversionResults: List<ConversionResult> = emptyList(),
