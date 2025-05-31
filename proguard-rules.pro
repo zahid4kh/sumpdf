@@ -6,6 +6,21 @@
 -dontwarn net.miginfocom.swing.MigLayout
 -dontwarn sun.java2d.cmm.**
 
+# Allow sun.misc.Unsafe usage - More comprehensive
+-keep class sun.misc.Unsafe { *; }
+-keep class jdk.internal.misc.Unsafe { *; }
+-keepclassmembers class sun.misc.Unsafe {
+    *;
+}
+-keepclassmembers class jdk.internal.misc.Unsafe {
+    *;
+}
+-dontwarn sun.misc.Unsafe
+-dontwarn jdk.internal.misc.Unsafe
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.internal.UnsafeAllocator { *; }
+-keep class com.google.gson.internal.** { *; }
+
 # Suppress notes
 -dontnote kotlinx.serialization.**
 -dontnote META-INF.**
@@ -79,6 +94,13 @@
 -dontnote org.apache.commons.lang3.**
 
 # Apache Commons Logging
+-keep class org.apache.commons.logging.impl.** { *; }
+-keep class org.apache.commons.logging.LogFactory { *; }
+-keep class org.apache.commons.logging.Log { *; }
+-keepnames class org.apache.commons.logging.LogFactory
+-keepnames class org.apache.commons.logging.impl.LogFactoryImpl
+-keepnames class org.apache.commons.logging.impl.NoOpLog
+-keepnames class org.apache.commons.logging.impl.SimpleLog
 -dontwarn org.apache.commons.logging.**
 -dontnote org.apache.commons.logging.**
 -dontwarn javax.servlet.**
@@ -89,6 +111,9 @@
 -dontnote org.apache.log.**
 
 # SLF4J
+-keep class org.slf4j.impl.** { *; }
+-keep class org.slf4j.simple.** { *; }
+-keepnames class org.slf4j.impl.StaticLoggerBinder
 -dontwarn org.slf4j.**
 -dontnote org.slf4j.**
 -keep class org.slf4j.LoggerFactory { *; }
@@ -98,6 +123,23 @@
 -keep interface org.slf4j.spi.SLF4JServiceProvider { *; }
 
 # Apache PDFBox
+-keep class org.apache.pdfbox.io.IOUtils {
+    static final org.apache.commons.logging.Log LOG;
+    *;
+}
+-keepclassmembers class org.apache.pdfbox.io.IOUtils {
+    static final org.apache.commons.logging.Log LOG;
+}
+
+# Ensure Apache Commons Logging initialization works
+-keep class org.apache.commons.logging.LogFactory {
+    static org.apache.commons.logging.LogFactory factory;
+    static java.util.Hashtable factories;
+    *;
+}
+-keepclassmembers class org.apache.commons.logging.LogFactory {
+    static *;
+}
 -dontnote org.apache.pdfbox.**
 -dontnote org.apache.fontbox.**
 -dontwarn org.bouncycastle.**
@@ -105,6 +147,7 @@
 -dontwarn org.apache.fontbox.**
 -keep class org.apache.pdfbox.** { *; }
 -keep class org.apache.fontbox.** { *; }
+-keep class org.apache.pdfbox.util.PDFBoxResourceLoader { *; }
 -keepnames class * implements org.apache.pdfbox.pdmodel.graphics.image.ImageReader
 -keepnames class * implements org.apache.pdfbox.pdmodel.font.FontProvider
 
@@ -140,8 +183,21 @@
     ** appModule$lambda$*(***);
 }
 
+# JodConverter registry and format loading
+-keep class org.jodconverter.core.document.JsonDocumentFormatRegistry { *; }
+-keep class org.jodconverter.core.document.DefaultDocumentFormatRegistry { *; }
+-keep class org.jodconverter.core.document.DefaultDocumentFormatRegistryInstanceHolder { *; }
+
 # Keep core JodConverter classes and their inner classes
 -keep class org.jodconverter.core.** { *; }
+# Keep DocumentFormat and related classes for Gson
+-keep class org.jodconverter.core.document.DocumentFormat { *; }
+-keep class org.jodconverter.core.document.DocumentFormat$* { *; }
+-keep class org.jodconverter.core.document.** { *; }
+-keepclassmembers class org.jodconverter.core.document.** {
+    <init>();
+    <init>(...);
+}
 -keep class org.jodconverter.local.LocalConverter { *; }
 -keep class org.jodconverter.local.LocalConverter$* { *; }
 -keep class org.jodconverter.local.office.LocalOfficeManager { *; }
@@ -219,6 +275,41 @@
 # Don't warn about optional dependencies
 -dontwarn java.awt.**
 -dontwarn javax.swing.**
+# Gson support for JodConverter - More comprehensive
+-keep class com.google.gson.** { *; }
+-keep class * implements com.google.gson.TypeAdapter { *; }
+-keep class * implements com.google.gson.TypeAdapterFactory { *; }
+-keep class * implements com.google.gson.JsonSerializer { *; }
+-keep class * implements com.google.gson.JsonDeserializer { *; }
+-keep class com.google.gson.internal.** { *; }
+-keep class com.google.gson.reflect.** { *; }
+
+# Critical for Gson to work with JodConverter DocumentFormat
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Force keep DocumentFormat constructors and fields
+-keep class org.jodconverter.core.document.DocumentFormat {
+    <init>();
+    <init>(...);
+    <fields>;
+    <methods>;
+}
+-keepclassmembers class org.jodconverter.core.document.DocumentFormat {
+    *;
+}
+
+# Keep all field names for Gson reflection
+-keepclassmembers class org.jodconverter.core.document.** {
+    <fields>;
+    <init>();
+    <init>(...);
+}
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
 -dontwarn com.google.gson.**
 -dontnote com.google.gson.**
 
