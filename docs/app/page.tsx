@@ -29,6 +29,14 @@ import {
   UserRoundXIcon,
 } from "lucide-react";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function SumPDFWebsite() {
   const [isDark, setIsDark] = useState(false);
@@ -38,6 +46,8 @@ export default function SumPDFWebsite() {
   const [windowsInstallType, setWindowsInstallType] = useState<
     "msi" | "portable"
   >("msi");
+
+  const [isLibreOfficeDialogOpen, setIsLibreOfficeDialogOpen] = useState(false);
 
   const GITHUB_RELEASE_URL =
     "https://github.com/zahid4kh/sumpdf/releases/download/1.0.0";
@@ -559,6 +569,84 @@ export default function SumPDFWebsite() {
               </TabsContent>
             </div>
           </Tabs>
+
+          <div className="mt-8 flex justify-center">
+            <Dialog
+              open={isLibreOfficeDialogOpen}
+              onOpenChange={setIsLibreOfficeDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={`${themeClasses.bg} ${themeClasses.text} border ${themeClasses.border} rounded-2xl hover:opacity-90 flex items-center gap-2`}
+                >
+                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                  Important: Document Conversion Requirements
+                </Button>
+              </DialogTrigger>
+              <DialogContent
+                className={`${themeClasses.bg} ${themeClasses.text} border ${themeClasses.border} rounded-3xl max-w-2xl`}
+              >
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold mb-4">
+                    LibreOffice Required for Document Conversion
+                  </DialogTitle>
+                  <DialogDescription className={`${themeClasses.text}`}>
+                    <p className="mb-4">
+                      To convert DOC, DOCX, and ODT files to PDF, LibreOffice
+                      must be installed on your system.
+                    </p>
+
+                    <div
+                      className={`${themeClasses.bgAlt} ${themeClasses.textAlt} p-4 rounded-xl mb-4`}
+                    >
+                      <h4 className="font-bold mb-2">
+                        Installation Instructions:
+                      </h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-center gap-2">
+                          <Image
+                            src="/windows.svg"
+                            alt="Windows"
+                            width={16}
+                            height={16}
+                          />
+                          <span>Windows:</span>
+                          <a
+                            href="https://www.libreoffice.org/download/download/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:opacity-80"
+                          >
+                            Download from LibreOffice.org
+                          </a>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Image
+                            src="/linux.svg"
+                            alt="Linux"
+                            width={16}
+                            height={16}
+                          />
+                          <span>Linux:</span>
+                          <code className="px-2 py-1 rounded bg-black/20">
+                            sudo apt install libreoffice
+                          </code>
+                          <span className="text-sm">(Ubuntu/Debian)</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <p className="text-sm opacity-80">
+                      Note: The first conversion might take longer as
+                      LibreOffice initializes. Subsequent conversions will be
+                      faster.
+                    </p>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </section>
 
