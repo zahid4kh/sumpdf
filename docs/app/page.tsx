@@ -504,7 +504,7 @@ export default function SumPDFWebsite() {
                   <CardContent className="space-y-6">
                     <Button
                       onClick={() =>
-                        downloadFile("sumpdf_1.0.0-1_amd64-wm.deb")
+                        downloadFile("sumpdf_1.1.0-1_amd64-wm.deb")
                       }
                       className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                     >
