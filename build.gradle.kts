@@ -36,7 +36,8 @@ dependencies {
     implementation(libs.koin.core)
 
     // PDFbox for merger utility
-    implementation("org.apache.pdfbox:pdfbox:3.0.0")
+    implementation("org.apache.pdfbox:pdfbox:3.0.3")
+    implementation("commons-logging:commons-logging:1.3.5")
 
     implementation("com.github.zahid4kh:deskit:1.2.0")
 
