@@ -93,6 +93,8 @@ compose.desktop {
                 shortcut = true
                 dirChooser = true
                 menu = true
+                vendor = "Zahid Khalilov"
+                description = "Tool for combining PDFs into one and converting various file types into PDF format"
                 upgradeUuid = "6414014c-b5f0-462e-967f-14fdd38386f5"
                 iconFile.set(project.file("icons/sumpdf.ico"))
             }
