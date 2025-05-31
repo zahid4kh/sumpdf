@@ -11,6 +11,9 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
+import org.jodconverter.core.document.DocumentFamily
+import org.jodconverter.core.document.DocumentFormat
+import org.jodconverter.core.document.DocumentFormatRegistry
 import org.jodconverter.core.office.OfficeException
 import org.jodconverter.local.LocalConverter
 import org.jodconverter.local.office.LocalOfficeManager
@@ -271,13 +274,19 @@ class PDFConverter : Converter {
     private fun convertOfficeToPdf(inputFile: File, outputFile: File) {
         val officeManager = LocalOfficeManager.builder()
             .install()
+            .processTimeout(30000L)
+            .processRetryInterval(1000L)
+            .maxTasksPerProcess(5)
+            .portNumbers(2002, 2003, 2004)
             .build()
 
         try {
             officeManager.start()
+            Thread.sleep(1000)
 
             val converter = LocalConverter.builder()
                 .officeManager(officeManager)
+                .formatRegistry(createCustomFormatRegistry())
                 .build()
 
             converter.convert(inputFile)
@@ -295,8 +304,82 @@ class PDFConverter : Converter {
         } finally {
             try {
                 officeManager.stop()
+                Thread.sleep(500)
             } catch (e: Exception) {}
         }
+    }
+
+    private fun createCustomFormatRegistry(): DocumentFormatRegistry {
+        val formats = mutableMapOf<String, DocumentFormat>()
+
+        formats["doc"] = createDocFormat()
+        formats["docx"] = createDocxFormat()
+
+        formats["odt"] = createOdtFormat()
+
+        formats["pdf"] = createPdfFormat()
+
+        return object : DocumentFormatRegistry {
+            override fun getFormatByExtension(extension: String): DocumentFormat? {
+                return formats[extension.lowercase()]
+            }
+
+            override fun getFormatByMediaType(mediaType: String): DocumentFormat? {
+                return formats.values.find { it.mediaType == mediaType }
+            }
+
+            override fun getOutputFormats(family: DocumentFamily): MutableSet<DocumentFormat> {
+                return when (family) {
+                    DocumentFamily.TEXT -> {
+                        mutableSetOf(formats["pdf"]!!)
+                    }
+
+                    else -> mutableSetOf()
+                }
+            }
+        }
+    }
+
+    private fun createDocFormat(): DocumentFormat {
+        return DocumentFormat.builder()
+            .name("Microsoft Word 97-2003")
+            .extension("doc")
+            .mediaType("application/msword")
+            .inputFamily(DocumentFamily.TEXT)
+            .build()
+    }
+
+    private fun createDocxFormat(): DocumentFormat {
+        return DocumentFormat.builder()
+            .name("Microsoft Word 2007-2019")
+            .extension("docx")
+            .mediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            .inputFamily(DocumentFamily.TEXT)
+            .build()
+    }
+
+    private fun createOdtFormat(): DocumentFormat {
+        return DocumentFormat.builder()
+            .name("OpenDocument Text")
+            .extension("odt")
+            .mediaType("application/vnd.oasis.opendocument.text")
+            .inputFamily(DocumentFamily.TEXT)
+            .build()
+    }
+
+    private fun createPdfFormat(): DocumentFormat {
+        // store properties map for PDF export
+        //val storePropertiesMap = mutableMapOf<DocumentFamily, MutableMap<String, Any>>()
+        val textProperties = mutableMapOf<String, Any>()
+        textProperties["FilterName"] = "writer_pdf_Export"
+        //storePropertiesMap[DocumentFamily.TEXT] = textProperties
+
+        return DocumentFormat.builder()
+            .name("Portable Document Format")
+            .extension("pdf")
+            .mediaType("application/pdf")
+            .storeProperty(DocumentFamily.TEXT, "FilterName", "writer_pdf_Export")
+            .build()
     }
 
     @Deprecated(
