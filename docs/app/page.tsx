@@ -534,7 +534,7 @@ export default function SumPDFWebsite() {
                                       className={`absolute top-2 right-2 h-8 w-8 p-0 ${themeClasses.border} ${themeClasses.bg} ${themeClasses.text} hover:opacity-90 rounded-lg`}
                                       onClick={() =>
                                         copyToClipboard(
-                                          "sudo dpkg -i sumpdf_1.0.0-1_amd64-wm.deb",
+                                          "sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb",
                                           "linux-install"
                                         )
                                       }
