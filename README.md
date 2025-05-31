@@ -59,7 +59,6 @@
 2. Download the appropriate installer:
   - **Windows**: `.exe` or `.msi` installer
   - **Linux**: `.deb` package
-  - **macOS**: `.dmg` installer
 
 ### Linux Installation
 ```bash
