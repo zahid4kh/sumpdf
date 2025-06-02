@@ -60,21 +60,27 @@
 
 ## 🚀 Installation
 
+### Linux Installation (Recommended)
+
+**Easy installation via APT repository:**
+
+📦 **[Install from my APT Repository](https://github.com/zahid4kh/my-apt-repo)**
+
+This is the recommended method for Ubuntu/Debian users as it provides automatic updates and dependency management.
+
 ### Download Releases
 
 1. Go to [Releases](https://github.com/zahid4kh/sumpdf/releases)
 2. Download the appropriate installer:
 
 - **Windows**: `.exe` or `.msi` installer
-- **Linux**: `.deb` package
+- **Linux**: `.deb` package (manual installation)
 
-### Linux Installation
+### Manual Linux Installation
 
 ```bash
-# Download the .deb file and install
 sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb
 
-# Fix dependencies if needed
 sudo apt install -f
 ```
 
