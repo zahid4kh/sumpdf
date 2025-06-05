@@ -43,6 +43,9 @@ export default function SumPDFWebsite() {
   const [windowsInstallType, setWindowsInstallType] = useState<
     "msi" | "portable"
   >("msi");
+  const [linuxInstallType, setLinuxInstallType] = useState<"apt" | "manual">(
+    "apt"
+  );
 
   const [isLibreOfficeDialogOpen, setIsLibreOfficeDialogOpen] = useState(false);
 
@@ -502,39 +505,35 @@ export default function SumPDFWebsite() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Inner Tabs for Linux Installation Methods */}
-                    <Tabs defaultValue="apt" className="w-full">
-                      <TabsList
-                        className={`grid w-full grid-cols-2 ${themeClasses.bg} border ${themeClasses.border} mb-8 rounded-2xl`}
+                    <div className="flex gap-4">
+                      <Button
+                        className={`flex-1 transition-all duration-200 ${
+                          linuxInstallType === "apt"
+                            ? `${themeClasses.bgAlt} ${themeClasses.textAlt}`
+                            : `${themeClasses.bg} ${themeClasses.text}`
+                        } border ${
+                          themeClasses.border
+                        } rounded-2xl hover:opacity-90`}
+                        onClick={() => setLinuxInstallType("apt")}
                       >
-                        <TabsTrigger
-                          value="apt"
-                          className={`rounded-xl transition-all duration-200 
-        data-[state=active]:${themeClasses.bgAlt} 
-        data-[state=active]:${themeClasses.textAlt} 
-        data-[state=active]:shadow-md 
-        data-[state=active]:scale-[0.98]
-        ${isDark ? "hover:bg-gray-800" : "hover:bg-gray-200"}
-        hover:shadow-sm`}
-                        >
-                          APT Repository
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="manual"
-                          className={`rounded-xl transition-all duration-200 
-        data-[state=active]:${themeClasses.bgAlt} 
-        data-[state=active]:${themeClasses.textAlt} 
-        data-[state=active]:shadow-md 
-        data-[state=active]:scale-[0.98]
-        ${isDark ? "hover:bg-gray-800" : "hover:bg-gray-200"}
-        hover:shadow-sm`}
-                        >
-                          Manual Install
-                        </TabsTrigger>
-                      </TabsList>
+                        APT Repository
+                      </Button>
+                      <Button
+                        className={`flex-1 transition-all duration-200 ${
+                          linuxInstallType === "manual"
+                            ? `${themeClasses.bgAlt} ${themeClasses.textAlt}`
+                            : `${themeClasses.bg} ${themeClasses.text}`
+                        } border ${
+                          themeClasses.border
+                        } rounded-2xl hover:opacity-90`}
+                        onClick={() => setLinuxInstallType("manual")}
+                      >
+                        Manual Install
+                      </Button>
+                    </div>
 
-                      {/* APT Repository Installation */}
-                      <TabsContent value="apt">
+                    <div className="transition-all duration-200">
+                      {linuxInstallType === "apt" ? (
                         <div className="space-y-6">
                           <p className="text-sm">
                             Recommended method: Install from APT repository for
@@ -561,14 +560,11 @@ export default function SumPDFWebsite() {
                             </h4>
                             <CodeBlock id="linux-apt-install">
                               {`sudo apt update
-sudo apt install sumpdf`}
+sudo apt install pwdgen sumpdf`}
                             </CodeBlock>
                           </div>
                         </div>
-                      </TabsContent>
-
-                      {/* Manual DEB Installation */}
-                      <TabsContent value="manual">
+                      ) : (
                         <div className="space-y-6">
                           <Button
                             onClick={() =>
@@ -598,8 +594,8 @@ sudo apt install sumpdf`}
                             </ol>
                           </div>
                         </div>
-                      </TabsContent>
-                    </Tabs>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
