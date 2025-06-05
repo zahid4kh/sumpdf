@@ -497,70 +497,109 @@ export default function SumPDFWebsite() {
                       Linux Downloads
                     </CardTitle>
                     <CardDescription className={themeClasses.text}>
-                      Debian package available for Ubuntu and Debian-based
-                      distributions.
+                      Choose your preferred installation method for Ubuntu and
+                      Debian-based distributions.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <Button
-                      onClick={() =>
-                        downloadFile("sumpdf_1.1.0-1_amd64-wm.deb")
-                      }
-                      className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download .deb Package
-                    </Button>
+                    {/* Inner Tabs for Linux Installation Methods */}
+                    <Tabs defaultValue="apt" className="w-full">
+                      <TabsList
+                        className={`grid w-full grid-cols-2 ${themeClasses.bg} border ${themeClasses.border} mb-8 rounded-2xl`}
+                      >
+                        <TabsTrigger
+                          value="apt"
+                          className={`rounded-xl transition-all duration-200 
+        data-[state=active]:${themeClasses.bgAlt} 
+        data-[state=active]:${themeClasses.textAlt} 
+        data-[state=active]:shadow-md 
+        data-[state=active]:scale-[0.98]
+        ${isDark ? "hover:bg-gray-800" : "hover:bg-gray-200"}
+        hover:shadow-sm`}
+                        >
+                          APT Repository
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="manual"
+                          className={`rounded-xl transition-all duration-200 
+        data-[state=active]:${themeClasses.bgAlt} 
+        data-[state=active]:${themeClasses.textAlt} 
+        data-[state=active]:shadow-md 
+        data-[state=active]:scale-[0.98]
+        ${isDark ? "hover:bg-gray-800" : "hover:bg-gray-200"}
+        hover:shadow-sm`}
+                        >
+                          Manual Install
+                        </TabsTrigger>
+                      </TabsList>
 
-                    <div className="mt-6">
-                      <h4 className="font-medium mb-3">Installation steps:</h4>
-                      <ol className="text-sm space-y-3 list-decimal list-outside ml-4">
-                        <li>Download the .deb package</li>
-                        <li>
-                          Open terminal and run:
-                          <div className="mt-2">
-                            <div className="relative">
-                              <div
-                                className={`${themeClasses.bgAlt} ${themeClasses.textAlt} rounded-xl p-4 font-mono text-sm ${themeClasses.border} border`}
-                              >
-                                sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb
-                              </div>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className={`absolute top-2 right-2 h-8 w-8 p-0 ${themeClasses.border} ${themeClasses.bg} ${themeClasses.text} hover:opacity-90 rounded-lg`}
-                                      onClick={() =>
-                                        copyToClipboard(
-                                          "sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb",
-                                          "linux-install"
-                                        )
-                                      }
-                                    >
-                                      {copiedStates["linux-install"] ? (
-                                        <Check className="h-4 w-4" />
-                                      ) : (
-                                        <Copy className="h-4 w-4" />
-                                      )}
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      {copiedStates["linux-install"]
-                                        ? "Copied!"
-                                        : "Copy to clipboard"}
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
+                      {/* APT Repository Installation */}
+                      <TabsContent value="apt">
+                        <div className="space-y-6">
+                          <p className="text-sm">
+                            Recommended method: Install from APT repository for
+                            automatic updates and dependency management.
+                          </p>
+
+                          <div className="space-y-4">
+                            <h4 className="font-medium">
+                              1. Add the repository GPG key:
+                            </h4>
+                            <CodeBlock id="linux-apt-key">
+                              {`wget -qO- https://zahid4kh.github.io/my-apt-repo/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/zahid-archive-keyring.gpg`}
+                            </CodeBlock>
+
+                            <h4 className="font-medium">
+                              2. Add the repository to your sources list:
+                            </h4>
+                            <CodeBlock id="linux-apt-source">
+                              {`echo "deb [arch=amd64 signed-by=/usr/share/keyrings/zahid-archive-keyring.gpg] https://zahid4kh.github.io/my-apt-repo stable main" | sudo tee /etc/apt/sources.list.d/zahid-apps.list`}
+                            </CodeBlock>
+
+                            <h4 className="font-medium">
+                              3. Update package list and install SumPDF:
+                            </h4>
+                            <CodeBlock id="linux-apt-install">
+                              {`sudo apt update
+sudo apt install sumpdf`}
+                            </CodeBlock>
                           </div>
-                        </li>
-                        <li>Launch SumPDF from your applications menu</li>
-                      </ol>
-                    </div>
+                        </div>
+                      </TabsContent>
+
+                      {/* Manual DEB Installation */}
+                      <TabsContent value="manual">
+                        <div className="space-y-6">
+                          <Button
+                            onClick={() =>
+                              downloadFile("sumpdf_1.1.0-1_amd64-wm.deb")
+                            }
+                            className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download .deb Package
+                          </Button>
+
+                          <div className="mt-6">
+                            <h4 className="font-medium mb-3">
+                              Installation steps:
+                            </h4>
+                            <ol className="text-sm space-y-3 list-decimal list-outside ml-4">
+                              <li>Download the .deb package</li>
+                              <li>
+                                Open terminal and run:
+                                <div className="mt-2">
+                                  <CodeBlock id="linux-manual-install">
+                                    {`sudo dpkg -i sumpdf_1.1.0-1_amd64-wm.deb`}
+                                  </CodeBlock>
+                                </div>
+                              </li>
+                              <li>Launch SumPDF from your applications menu</li>
+                            </ol>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </CardContent>
                 </Card>
               </TabsContent>
