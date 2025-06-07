@@ -89,7 +89,9 @@ fun OutputPathSelection(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.width(IntrinsicSize.Max)
+                modifier = Modifier.width(IntrinsicSize.Max),
+                shape = MaterialTheme.shapes.medium,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ) {
                 recentPaths.forEach { path ->
                     DropdownMenuItem(
