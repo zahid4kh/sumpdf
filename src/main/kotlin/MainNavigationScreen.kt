@@ -41,6 +41,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.batik.svggen.SVGCSSStyler.style
 import org.jetbrains.compose.resources.painterResource
+import sumpdf.BuildConfig
 import sumpdf.resources.Res
 import sumpdf.resources.combine_svgrepo_com
 import sumpdf.resources.sumpdf
@@ -89,7 +90,7 @@ fun MainNavigationScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Version: 1.1.0",
+                        text = "Version: ${BuildConfig.VERSION_NAME}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
