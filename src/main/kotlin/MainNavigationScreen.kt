@@ -63,6 +63,9 @@ fun MainNavigationScreen(
     val cardHeight by remember { mutableStateOf(370.dp) }
     var showAppInfo by remember { mutableStateOf(false)}
 
+    val isLinux = System.getProperty("os.name").lowercase() == "linux"
+    val isWindows = System.getProperty("os.name").lowercase() == "windows"
+
     if (showAppInfo) {
         InfoDialog(
             width = 450.dp,
@@ -120,7 +123,7 @@ fun MainNavigationScreen(
     if (uiState.value.showNewUpdatesDialog) {
         InfoDialog(
             width = 450.dp,
-            height = 270.dp,
+            height = 320.dp,
             title = "Check for Updates",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             onClose = { viewModel.hideNewUpdatesDialog() },
@@ -151,16 +154,48 @@ fun MainNavigationScreen(
                             textAlign = TextAlign.Center
                         )
                         if (uiState.value.isUpdateAvailable) {
-                            Text(
-                                text = "Download Latest Version",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable {
-                                        Desktop.getDesktop().browse(URI("https://github.com/zahid4kh/sumpdf/releases"))
-                                    }
-                                    .pointerHoverIcon(icon = PointerIcon.Hand)
-                            )
+                            val downloadUrl = "https://sumpdf.vercel.app"
+                            if (isWindows) {
+                                Text(
+                                    text = "Download the latest .exe or .msi installer from:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = downloadUrl,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .clickable {
+                                            Desktop.getDesktop().browse(URI(downloadUrl))
+                                        }
+                                        .pointerHoverIcon(icon = PointerIcon.Hand)
+                                )
+                            } else if (isLinux) {
+                                Text(
+                                    text = "Download and install the latest Debian package from:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = downloadUrl,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .clickable {
+                                            Desktop.getDesktop().browse(URI(downloadUrl))
+                                        }
+                                        .pointerHoverIcon(icon = PointerIcon.Hand)
+                                )
+                                Text(
+                                    text = "Alternatively, if you installed SumPDF via APT repository, you can update by running:\n'sudo apt update && sudo apt upgrade'",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
