@@ -108,7 +108,10 @@ fun ConverterScreen(
                 selectedPath = uiState.selectedOutputPath,
                 recentPaths = uiState.recentOutputPaths,
                 onPathSelected = viewModel::selectOutputPath,
-                onShowFolderChooser = viewModel::showFolderChooser
+                onShowFolderChooser = viewModel::showFolderChooser,
+                onSelectDownloadsPath = viewModel::selectDownloadsFolder,
+                onSelectCustomPath = viewModel::selectCustomPath,
+                isDownloadPathSelected = uiState.isDownloadsPathSelected
             )
 
             BottomBar(

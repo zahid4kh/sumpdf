@@ -23,6 +23,9 @@ class ConverterViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    val homeDir = System.getProperty("user.home")
+    val downloadsDir = "$homeDir/Downloads"
+
     private val scope = CoroutineScope(Dispatchers.Main)
 
     init {
@@ -31,7 +34,8 @@ class ConverterViewModel(
             _uiState.value = _uiState.value.copy(
                 defaultOutputPath = settings.defaultOutputPath,
                 recentOutputPaths = settings.recentOutputPaths,
-                lastUsedDirectory = settings.lastUsedDirectory
+                lastUsedDirectory = settings.lastUsedDirectory,
+                selectedOutputPath = downloadsDir
             )
 
             val previousTasks = database.getTasks()
@@ -93,6 +97,21 @@ class ConverterViewModel(
                 ))
             }
         }
+    }
+
+    fun selectDownloadsFolder(){
+        _uiState.value = _uiState.value.copy(
+            isDownloadsPathSelected = true,
+            isCustomPathSelected = false,
+            selectedOutputPath = downloadsDir
+        )
+    }
+
+    fun selectCustomPath(){
+        _uiState.value = _uiState.value.copy(
+            isCustomPathSelected = true,
+            isDownloadsPathSelected = false
+        )
     }
 
     fun setLastUsedDirectory(path: String) {
@@ -240,6 +259,8 @@ class ConverterViewModel(
         val lastUsedDirectory: String? = null,
         val defaultOutputPath: String? = null,
         val showFileChooser: Boolean = false,
-        val showFolderChooser: Boolean = false
+        val showFolderChooser: Boolean = false,
+        val isDownloadsPathSelected: Boolean = true,
+        val isCustomPathSelected: Boolean = false
     )
 }
