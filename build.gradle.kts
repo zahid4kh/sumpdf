@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "zahid4kh.sumpdf"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     maven { url = uri("https://jitpack.io") }
@@ -83,7 +83,7 @@ compose.desktop {
 
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "sumpdf"
-            packageVersion = "1.1.0"
+            packageVersion = "1.2.0"
 
             linux{
                 shortcut = true
