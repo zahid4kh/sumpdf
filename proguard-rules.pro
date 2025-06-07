@@ -1,4 +1,29 @@
 -dontwarn kotlinx.serialization.**
+-keep class sumpdf.BuildConfig { *; }
+
+# OkHttp - Suppress warnings for Android, Conscrypt, and OpenJSSE specific classes
+-dontwarn okhttp3.internal.platform.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
+-dontwarn android.security.**
+-dontwarn android.os.**
+-dontwarn android.util.**
+-dontwarn android.net.**
+-dontwarn dalvik.system.**
+
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-keep class okio.** { *; }
+-keep interface okio.** { *; }
+
+# Notes related to dynamic access in OkHttp
+-dontnote okhttp3.internal.platform.android.CloseGuard$Companion
+-dontnote okhttp3.internal.platform.android.AndroidSocketAdapter
+
+# Keep Semver4j library
+-keep class com.vdurmont.semver4j.** { *; }
+-keep interface com.vdurmont.semver4j.** { *; }
+-dontnote com.vdurmont.semver4j.**
 
 # Sun/Swing warnings
 -dontwarn sun.misc.**
