@@ -26,6 +26,7 @@ fun ConversionResultDialog(
 
     InfoDialog(
         title = "Conversion Results",
+        height = 330.dp,
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
