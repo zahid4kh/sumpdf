@@ -18,4 +18,5 @@ sealed class PdfCombinerIntent {
     object HideSuccessDialog : PdfCombinerIntent()
     object ShowErrorDialog : PdfCombinerIntent()
     object HideErrorDialog : PdfCombinerIntent()
+    object CheckForUpdates : PdfCombinerIntent()
 }

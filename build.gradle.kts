@@ -54,6 +54,8 @@ dependencies {
     api(compose.foundation)
     api(compose.animation)
 
+    implementation("com.vdurmont:semver4j:3.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
 
 compose.resources{

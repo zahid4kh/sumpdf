@@ -1,12 +1,19 @@
 package combiner
 
 import Database
+import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import java.io.File
 
@@ -47,6 +54,7 @@ class CombinerViewModel(
             is PdfCombinerIntent.ShowErrorDialog -> showErrorDialog()
             is PdfCombinerIntent.HideErrorDialog -> hideErrorDialog()
             is PdfCombinerIntent.ReorderPdfs -> reorderPdfs(intent.fromIndex, intent.toIndex)
+            is PdfCombinerIntent.CheckForUpdates -> checkForUpdates()
         }
     }
 
@@ -188,6 +196,87 @@ class CombinerViewModel(
         }
     }
 
+    private fun checkForUpdates() {
+        _uiState.value = _uiState.value.copy(
+            isCheckingUpdates = true,
+            showNewUpdatesDialog = true,
+            updateMessage = null,
+            isUpdateAvailable = false
+        )
+
+        scope.launch(Dispatchers.IO) {
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url("https://api.github.com/repos/zahid4kh/sumpdf/tags")
+                .build()
+
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        scope.launch(Dispatchers.Main) {
+                            _uiState.value = _uiState.value.copy(
+                                isCheckingUpdates = false,
+                                updateMessage = "Error fetching updates: HTTP ${response.code}",
+                                isUpdateAvailable = false
+                            )
+                        }
+                        return@use
+                    }
+
+                    val responseBody = response.body?.string() ?: return@use
+                    val json = Json.parseToJsonElement(responseBody).jsonArray
+
+                    if (json.isNotEmpty()) {
+                        val latestTag = json[0].jsonObject["name"]?.jsonPrimitive?.content ?: return@use
+                        val current = Semver("1.1.0") // Hardcoded for now
+                        val latest = Semver(latestTag.replace("^v", "")) // Striping 'v' if present
+                        scope.launch(Dispatchers.Main) {
+                            if (latest.isGreaterThan(current)) {
+                                _uiState.value = _uiState.value.copy(
+                                    isCheckingUpdates = false,
+                                    updateMessage = "New version available: $latestTag. Download the latest version from GitHub.",
+                                    isUpdateAvailable = true
+                                )
+                            } else {
+                                _uiState.value = _uiState.value.copy(
+                                    isCheckingUpdates = false,
+                                    updateMessage = "You are using the latest version: 1.1.0",
+                                    isUpdateAvailable = false
+                                )
+                            }
+                        }
+                    } else {
+                        scope.launch(Dispatchers.Main) {
+                            _uiState.value = _uiState.value.copy(
+                                isCheckingUpdates = false,
+                                updateMessage = "No version tags found in the repository.",
+                                isUpdateAvailable = false
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                scope.launch(Dispatchers.Main) {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdates = false,
+                        updateMessage = "Error checking for updates: ${e.message}",
+                        isUpdateAvailable = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun hideNewUpdatesDialog() {
+        _uiState.value = _uiState.value.copy(
+            showNewUpdatesDialog = false,
+            isCheckingUpdates = false,
+            updateMessage = null,
+            isUpdateAvailable = false
+        )
+    }
+
+
     data class UiState(
         val darkMode: Boolean = false,
         val isConverting: Boolean = false,
@@ -195,6 +284,10 @@ class CombinerViewModel(
         val showFileSaver: Boolean = false,
         val showSuccessDialog: Boolean = false,
         val showErrorDialog: Boolean = false,
-        val selectedSaveFile: File? = null
+        val selectedSaveFile: File? = null,
+        val isCheckingUpdates: Boolean = false,
+        val showNewUpdatesDialog: Boolean = false,
+        val updateMessage: String? = null,
+        val isUpdateAvailable: Boolean = false
     )
 }

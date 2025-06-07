@@ -40,7 +40,8 @@ fun App(
                         darkMode = darkMode,
                         onToggleDarkMode = combinerViewModel::toggleDarkMode,
                         onNavigateToCombiner = { navigator.navigate("/combiner") },
-                        onNavigateToConverter = { navigator.navigate("/converter") }
+                        onNavigateToConverter = { navigator.navigate("/converter") },
+                        viewModel = combinerViewModel
                     )
                 }
 

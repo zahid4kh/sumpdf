@@ -7,9 +7,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,14 +27,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vdurmont.semver4j.Semver
+import combiner.CombinerViewModel
+import combiner.PdfCombinerIntent
 import deskit.dialogs.InfoDialog
 import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import moe.tlaster.precompose.viewmodel.viewModel
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.batik.svggen.SVGCSSStyler.style
 import org.jetbrains.compose.resources.painterResource
 import sumpdf.resources.Res
 import sumpdf.resources.combine_svgrepo_com
 import sumpdf.resources.sumpdf
 import sumpdf.resources.vectorsumpdf
+import sun.management.jdp.JdpGenericPacket.checkVersion
 import java.awt.Desktop
 import java.net.URI
 import java.net.URL
@@ -43,8 +56,10 @@ fun MainNavigationScreen(
     darkMode: Boolean,
     onToggleDarkMode: () -> Unit,
     onNavigateToCombiner: () -> Unit,
-    onNavigateToConverter: () -> Unit
+    onNavigateToConverter: () -> Unit,
+    viewModel: CombinerViewModel
 ) {
+    val uiState = viewModel.uiState.collectAsState()
     val cardHeight by remember { mutableStateOf(370.dp) }
     var showAppInfo by remember { mutableStateOf(false)}
 
@@ -102,6 +117,59 @@ fun MainNavigationScreen(
         )
     }
 
+    if (uiState.value.showNewUpdatesDialog) {
+        InfoDialog(
+            width = 450.dp,
+            height = 270.dp,
+            title = "Check for Updates",
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            onClose = { viewModel.hideNewUpdatesDialog() },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (uiState.value.isCheckingUpdates) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Checking for updates...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    } else {
+                        Text(
+                            text = uiState.value.updateMessage ?: "No update information available.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        )
+                        if (uiState.value.isUpdateAvailable) {
+                            Text(
+                                text = "Download Latest Version",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .clickable {
+                                        Desktop.getDesktop().browse(URI("https://github.com/zahid4kh/sumpdf/releases"))
+                                    }
+                                    .pointerHoverIcon(icon = PointerIcon.Hand)
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -131,6 +199,15 @@ fun MainNavigationScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = "App Info"
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {viewModel.handleIntent(PdfCombinerIntent.CheckForUpdates)}
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Check for updates"
                         )
                     }
                 },
