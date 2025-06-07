@@ -10,17 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dialogs.InfoDialog
+import deskit.dialogs.InfoDialog
 import model.ConversionResult
-import org.apache.batik.svggen.SVGCSSStyler.style
-import org.jetbrains.compose.resources.painterResource
-import sumpdf.resources.Res
-import sumpdf.resources.combine_svgrepo_com
-import sumpdf.resources.sumpdf
 import java.io.File
 
 @Composable

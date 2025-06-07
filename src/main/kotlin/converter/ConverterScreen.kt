@@ -14,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dialogs.file.FileChooserDialog
-import dialogs.file.FolderChooserDialog
+import deskit.dialogs.file.FileChooserDialog
+import deskit.dialogs.file.FolderChooserDialog
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
