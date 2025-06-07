@@ -15,6 +15,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.pdfbox.multipdf.PDFMergerUtility
+import sumpdf.BuildConfig
 import java.io.File
 
 class CombinerViewModel(
@@ -228,8 +229,8 @@ class CombinerViewModel(
 
                     if (json.isNotEmpty()) {
                         val latestTag = json[0].jsonObject["name"]?.jsonPrimitive?.content ?: return@use
-                        val current = Semver("1.1.0") // Hardcoded for now
-                        val latest = Semver(latestTag.replace("^v", "")) // Striping 'v' if present
+                        val current = Semver(BuildConfig.VERSION_NAME)
+                        val latest = Semver(latestTag.replace("^v", ""))
                         scope.launch(Dispatchers.Main) {
                             if (latest.isGreaterThan(current)) {
                                 _uiState.value = _uiState.value.copy(
@@ -240,7 +241,7 @@ class CombinerViewModel(
                             } else {
                                 _uiState.value = _uiState.value.copy(
                                     isCheckingUpdates = false,
-                                    updateMessage = "You are using the latest version: 1.1.0",
+                                    updateMessage = "You are using the latest version: ${BuildConfig.VERSION_NAME}",
                                     isUpdateAvailable = false
                                 )
                             }
