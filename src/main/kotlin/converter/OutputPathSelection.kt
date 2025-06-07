@@ -40,8 +40,7 @@ fun OutputPathSelection(
 
         Text(
             text = "Output folder:",
-            fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(end = 12.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -60,8 +59,7 @@ fun OutputPathSelection(
                 modifier = Modifier.padding(end = 4.dp)
             )
             Text("Choose folder",
-                fontFamily = MaterialTheme.typography.labelMedium.fontFamily,
-                fontSize = MaterialTheme.typography.labelMedium.fontSize
+                style = MaterialTheme.typography.labelMedium
             )
         }
 
