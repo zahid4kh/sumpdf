@@ -440,7 +440,7 @@ export default function SumPDFWebsite() {
                           </p>
 
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.1.0.msi")}
+                            onClick={() => downloadFile("sumpdf-1.2.0.msi")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -461,7 +461,7 @@ export default function SumPDFWebsite() {
                       ) : (
                         <>
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.1.0.exe")}
+                            onClick={() => downloadFile("sumpdf-1.2.0.exe")}
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
