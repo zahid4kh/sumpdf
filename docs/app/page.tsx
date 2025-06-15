@@ -49,8 +49,8 @@ export default function SumPDFWebsite() {
 
   const [isLibreOfficeDialogOpen, setIsLibreOfficeDialogOpen] = useState(false);
 
-  const GITHUB_RELEASE_URL =
-    "https://github.com/zahid4kh/sumpdf/releases/download/1.2.0";
+  const APP_VERSION = "1.2.0";
+  const GITHUB_RELEASE_URL = `https://github.com/zahid4kh/sumpdf/releases/download/${APP_VERSION}`;
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -440,7 +440,9 @@ export default function SumPDFWebsite() {
                           </p>
 
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.2.0.msi")}
+                            onClick={() =>
+                              downloadFile(`sumpdf-${APP_VERSION}.msi`)
+                            }
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -461,7 +463,9 @@ export default function SumPDFWebsite() {
                       ) : (
                         <>
                           <Button
-                            onClick={() => downloadFile("sumpdf-1.2.0.exe")}
+                            onClick={() =>
+                              downloadFile(`sumpdf-${APP_VERSION}.exe`)
+                            }
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
                             <Download className="mr-2 h-4 w-4" />
@@ -568,7 +572,9 @@ sudo apt install pwdgen sumpdf`}
                         <div className="space-y-6">
                           <Button
                             onClick={() =>
-                              downloadFile("sumpdf_1.2.0-1_amd64-wm.deb")
+                              downloadFile(
+                                `sumpdf_${APP_VERSION}-1_amd64-wm.deb`
+                              )
                             }
                             className={`w-full ${themeClasses.bgAlt} ${themeClasses.textAlt} hover:opacity-90 border ${themeClasses.border} rounded-2xl transition-all duration-200`}
                           >
@@ -586,7 +592,7 @@ sudo apt install pwdgen sumpdf`}
                                 Open terminal and run:
                                 <div className="mt-2">
                                   <CodeBlock id="linux-manual-install">
-                                    {`sudo dpkg -i sumpdf_1.2.0-1_amd64-wm.deb`}
+                                    {`sudo dpkg -i sumpdf_${APP_VERSION}-1_amd64-wm.deb`}
                                   </CodeBlock>
                                 </div>
                               </li>
