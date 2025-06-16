@@ -15,6 +15,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.pdfbox.multipdf.PDFMergerUtility
+import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import sumpdf.BuildConfig
 import java.io.File
 
@@ -110,7 +111,7 @@ class CombinerViewModel(
                     }
 
                     merger.destinationFileName = outputFile.absolutePath
-                    merger.mergeDocuments(null)
+                    merger.mergeDocuments(null, CompressParameters(500))
 
                     _state.value = _state.value.copy(
                         isLoading = false,
