@@ -153,6 +153,232 @@ class SplitterViewModel(
         }
     }
 
+    private fun saveExtractedPages() {
+        val outputPath = _uiState.value.outputFileDestination
+        val extractedPages = _uiState.value.extractedPages
+
+        if (outputPath.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Please select an output directory.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        if (extractedPages.isEmpty()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "No pages to save.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(
+            isSaving = true,
+            saveProgress = 0f,
+            currentSaveInfo = "Preparing to save pages..."
+        )
+
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val outputDir = File(outputPath)
+                    if (!outputDir.exists()) {
+                        outputDir.mkdirs()
+                    }
+
+                    var successCount = 0
+                    var failureCount = 0
+
+                    extractedPages.forEachIndexed { index, page ->
+                        try {
+                            val outputFile = File(outputDir, page.fileName)
+
+                            withContext(Dispatchers.Main) {
+                                _uiState.value = _uiState.value.copy(
+                                    currentSaveInfo = "Saving ${page.fileName} (${index + 1}/${extractedPages.size})...",
+                                    saveProgress = ((index + 1).toFloat() / extractedPages.size)
+                                )
+                            }
+
+                            page.document.save(outputFile.absolutePath)
+                            page.document.close()
+                            successCount++
+
+                            delay(300)
+                        } catch (e: IOException) {
+                            failureCount++
+                            println("Failed to save ${page.fileName}: ${e.message}")
+                        }
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        if (failureCount == 0) {
+                            _uiState.value = _uiState.value.copy(
+                                isSaving = false,
+                                saveProgress = 1f,
+                                successMessage = "Successfully saved $successCount pages!\nSaved to: $outputPath",
+                                showSuccessDialog = true,
+                                currentSaveInfo = null,
+                                extractedPages = emptyList()
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                isSaving = false,
+                                errorMessage = "Save completed with errors. $successCount pages saved, $failureCount failed.",
+                                showErrorDialog = true,
+                                currentSaveInfo = null
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    errorMessage = "Failed to save pages: ${e.message}",
+                    showErrorDialog = true,
+                    currentSaveInfo = null,
+                    saveProgress = 0f
+                )
+            }
+        }
+    }
+
+    private fun mergeAndSavePages() {
+        val outputPath = _uiState.value.outputFileDestination
+        val extractedPages = _uiState.value.extractedPages
+        val outputPrefix = _uiState.value.outputFileName
+
+        if (outputPath.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Please select an output directory.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        if (extractedPages.isEmpty()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "No pages to merge.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(
+            isMerging = true,
+            mergeProgress = 0f,
+            currentMergeInfo = "Preparing to merge pages..."
+        )
+
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val outputDir = File(outputPath)
+                    if (!outputDir.exists()) {
+                        outputDir.mkdirs()
+                    }
+
+                    val mergedFileName = "${outputPrefix}merged.pdf"
+                    val outputFile = File(outputDir, mergedFileName)
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            currentMergeInfo = "Merging ${extractedPages.size} pages...",
+                            mergeProgress = 0.2f
+                        )
+                    }
+
+                    delay(400)
+
+                    val merger = PDFMergerUtility()
+                    merger.destinationFileName = outputFile.absolutePath
+
+                    extractedPages.forEachIndexed { index, page ->
+                        withContext(Dispatchers.Main) {
+                            _uiState.value = _uiState.value.copy(
+                                currentMergeInfo = "Adding page ${index + 1} of ${extractedPages.size}...",
+                                mergeProgress = (0.2f + (index + 1).toFloat() / extractedPages.size * 0.6f)
+                            )
+                        }
+
+                        val tempFile = File.createTempFile("temp_page_${page.pageNumber}", ".pdf")
+                        page.document.save(tempFile.absolutePath)
+                        merger.addSource(tempFile)
+
+                        delay(200)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            currentMergeInfo = "Finalizing merged document...",
+                            mergeProgress = 0.9f
+                        )
+                    }
+
+                    merger.mergeDocuments(null, CompressParameters(500))
+
+                    extractedPages.forEach { it.document.close() }
+
+                    delay(300)
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            isMerging = false,
+                            mergeProgress = 1f,
+                            successMessage = "Successfully merged ${extractedPages.size} pages into $mergedFileName!\nSaved to: $outputPath",
+                            showSuccessDialog = true,
+                            currentMergeInfo = null,
+                            extractedPages = emptyList()
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isMerging = false,
+                    errorMessage = "Failed to merge pages: ${e.message}",
+                    showErrorDialog = true,
+                    currentMergeInfo = null,
+                    mergeProgress = 0f
+                )
+            }
+        }
+    }
+
+    private fun selectSplitMode(mode: SplitMode) {
+        _uiState.value = _uiState.value.copy(
+            splitMode = mode,
+            extractedPages = emptyList()
+        )
+    }
+
+    private fun deleteExtractedPage(page: ExtractedPage) {
+        val currentPages = _uiState.value.extractedPages.toMutableList()
+        currentPages.remove(page)
+        page.document.close()
+        _uiState.value = _uiState.value.copy(extractedPages = currentPages)
+    }
+
+    private fun movePageLeft(page: ExtractedPage) {
+        val currentPages = _uiState.value.extractedPages.toMutableList()
+        val currentIndex = currentPages.indexOf(page)
+        if (currentIndex > 0) {
+            currentPages.removeAt(currentIndex)
+            currentPages.add(currentIndex - 1, page)
+            _uiState.value = _uiState.value.copy(extractedPages = currentPages)
+        }
+    }
+
+    private fun movePageRight(page: ExtractedPage) {
+        val currentPages = _uiState.value.extractedPages.toMutableList()
+        val currentIndex = currentPages.indexOf(page)
+        if (currentIndex < currentPages.size - 1) {
+            currentPages.removeAt(currentIndex)
+            currentPages.add(currentIndex + 1, page)
+            _uiState.value = _uiState.value.copy(extractedPages = currentPages)
+        }
+    }
+
     private fun addPdfFile(file: File) {
         if (file.extension.lowercase() == "pdf") {
             _uiState.value = _uiState.value.copy(
