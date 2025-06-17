@@ -17,4 +17,24 @@ sealed class SplitterIntent {
     object HideSuccessDialog : SplitterIntent()
     object ShowErrorDialog : SplitterIntent()
     object HideErrorDialog : SplitterIntent()
+    data class SelectSplitMode(val mode: SplitMode) : SplitterIntent()
+    data class DeleteExtractedPage(val page: ExtractedPage) : SplitterIntent()
+    data class MovePageLeft(val page: ExtractedPage) : SplitterIntent()
+    data class MovePageRight(val page: ExtractedPage) : SplitterIntent()
+    object SaveExtractedPages : SplitterIntent()
+    object MergeAndSavePages : SplitterIntent()
 }
+
+enum class SplitMode {
+    SAVE_ALL,
+    DELETE_PAGES,
+    MERGE_PAGES
+}
+
+data class ExtractedPage(
+    val id: String,
+    val pageNumber: Int,
+    val fileName: String,
+    val document: org.apache.pdfbox.pdmodel.PDDocument,
+    val size: Long = 0L
+)
