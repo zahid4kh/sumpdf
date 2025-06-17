@@ -41,7 +41,8 @@ fun main() = application {
         ProvidePreComposeLocals {
             App(
                 combinerViewModel = combinerViewModel,
-                converterViewModel = converterViewModel
+                converterViewModel = converterViewModel,
+                splitterViewModel = splitterViewModel
             )
         }
 

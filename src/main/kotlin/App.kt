@@ -14,11 +14,14 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import theme.AppTheme
 import combiner.CombinerScreen
 import converter.ConverterScreen
+import splitter.SplitterScreen
+import splitter.SplitterViewModel
 
 @Composable
 fun App(
     combinerViewModel: CombinerViewModel,
-    converterViewModel: ConverterViewModel
+    converterViewModel: ConverterViewModel,
+    splitterViewModel: SplitterViewModel
 ) {
     val combinerUiState by combinerViewModel.uiState.collectAsState()
 
@@ -41,6 +44,7 @@ fun App(
                         onToggleDarkMode = combinerViewModel::toggleDarkMode,
                         onNavigateToCombiner = { navigator.navigate("/combiner") },
                         onNavigateToConverter = { navigator.navigate("/converter") },
+                        onNavigateToSplitter = {navigator.navigate("/splitter")},
                         viewModel = combinerViewModel
                     )
                 }
@@ -65,6 +69,18 @@ fun App(
                 ) {
                     ConverterScreen(
                         viewModel = converterViewModel,
+                        onBack = { navigator.goBack() }
+                    )
+                }
+
+                scene("/splitter",
+                    navTransition = NavTransition(
+                        createTransition = slideInHorizontally(initialOffsetX = {-it/2}) + scaleIn(initialScale = 0.4f),
+                        destroyTransition = scaleOut()
+                    )
+                ) {
+                    SplitterScreen(
+                        viewModel = splitterViewModel,
                         onBack = { navigator.goBack() }
                     )
                 }
