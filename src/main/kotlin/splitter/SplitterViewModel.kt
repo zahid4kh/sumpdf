@@ -533,6 +533,7 @@ class SplitterViewModel(
     private fun hideSuccessDialog() {
         _uiState.value = _uiState.value.copy(showSuccessDialog = false)
         clearMessages()
+        _uiState.value = UiState()
     }
 
     private fun showErrorDialog() {
