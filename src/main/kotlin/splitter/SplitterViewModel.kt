@@ -178,6 +178,7 @@ class SplitterViewModel(
     }
 
     private fun clearAll() {
+        _uiState.value.extractedPages.forEach { it.document.close() }
         _uiState.value = UiState()
     }
 
