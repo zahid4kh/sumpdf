@@ -4,22 +4,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Transform
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -27,29 +17,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.vdurmont.semver4j.Semver
 import combiner.CombinerViewModel
 import combiner.PdfCombinerIntent
 import deskit.dialogs.InfoDialog
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import moe.tlaster.precompose.viewmodel.viewModel
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.apache.batik.svggen.SVGCSSStyler.style
 import org.jetbrains.compose.resources.painterResource
 import sumpdf.BuildConfig
 import sumpdf.resources.Res
 import sumpdf.resources.combine_svgrepo_com
-import sumpdf.resources.sumpdf
-import sumpdf.resources.vectorsumpdf
-import sun.management.jdp.JdpGenericPacket.checkVersion
 import java.awt.Desktop
 import java.net.URI
-import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +34,7 @@ fun MainNavigationScreen(
     onToggleDarkMode: () -> Unit,
     onNavigateToCombiner: () -> Unit,
     onNavigateToConverter: () -> Unit,
+    onNavigateToSplitter: () -> Unit,
     viewModel: CombinerViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState()
@@ -363,6 +340,45 @@ fun MainNavigationScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Convert images and documents to PDF",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                OutlinedCard(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(cardHeight)
+                        .pointerHoverIcon(icon = PointerIcon.Hand),
+                    shape = RoundedCornerShape(16.dp),
+                    onClick = onNavigateToSplitter
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Splitscreen,
+                            contentDescription = "Split PDF",
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Split PDF",
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Split PDF into individual pages",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
