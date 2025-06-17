@@ -80,7 +80,7 @@ fun SplitterContent(
             )
 
             AnimatedVisibility(
-                visible = uiState.splitMode == SplitMode.DELETE_PAGES,
+                visible = uiState.splitMode == SplitMode.DELETE_PAGES || uiState.splitMode == SplitMode.MERGE_PAGES,
                 enter = slideInHorizontally() + fadeIn(),
                 exit = slideOutHorizontally() + fadeOut()
             ) {
