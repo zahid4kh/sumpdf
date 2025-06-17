@@ -358,6 +358,24 @@ fun SplitterContent(
             }
         }
 
+        if (uiState.selectedFile != null &&
+            (uiState.splitMode == SplitMode.SAVE_ALL) &&
+            uiState.outputFileDestination.isNullOrBlank()) {
+            Card(
+                border = BorderStroke(1.dp, Color(0xFFFF9800)), // Orange border
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFF9800).copy(alpha = 0.1f) // Light orange background
+                )
+            ) {
+                Text(
+                    text = "⚠️ Output folder must be selected by clicking on 'Choose Folder' button before splitting!",
+                    color = Color(0xFFFF9800), // Orange text
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+
         ActionButtons(
             uiState = uiState,
             onSelectPdf = { viewModel.handleIntent(SplitterIntent.ShowFileChooser) },
