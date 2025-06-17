@@ -6,3 +6,4 @@
 /wiki
 /deb-temp
 /src/main/kotlin/sumpdf/
+*.pdf
