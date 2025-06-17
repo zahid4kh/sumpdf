@@ -384,7 +384,8 @@ class SplitterViewModel(
             _uiState.value = _uiState.value.copy(
                 selectedFile = file,
                 outputFileName = "${file.nameWithoutExtension}_",
-                errorMessage = null
+                errorMessage = null,
+                extractedPages = emptyList()
             )
         } else {
             _uiState.value = _uiState.value.copy(
