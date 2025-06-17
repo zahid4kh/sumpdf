@@ -14,12 +14,18 @@ import splitter.SplitterViewModel
 import sumpdf.resources.Res
 import sumpdf.resources.sumpdf
 import java.awt.Dimension
+import java.io.File
 
 fun main() = application {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog")
-
     System.setProperty("jodconverter.document.format.registry", "simple")
     System.setProperty("com.google.gson.internal.UnsafeAllocator.disabled", "false")
+
+    cleanupTempDirectories()
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        cleanupTempDirectories()
+    })
 
     startKoin {
         modules(appModule)
@@ -30,7 +36,10 @@ fun main() = application {
     val splitterViewModel = getKoin().get<SplitterViewModel>()
 
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = {
+            cleanupTempDirectories()
+            exitApplication()
+        },
         state = rememberWindowState(size = DpSize(1400.dp, 900.dp)),
         title = "SumPDF",
         alwaysOnTop = true,
@@ -46,5 +55,25 @@ fun main() = application {
             )
         }
 
+    }
+}
+
+private fun cleanupTempDirectories() {
+    try {
+        val tempDir = File(System.getProperty("java.io.tmpdir"))
+        val sumpdfTempDirs = tempDir.listFiles { file ->
+            file.isDirectory && file.name.startsWith("sumpdf_temp_")
+        }
+
+        sumpdfTempDirs?.forEach { dir ->
+            try {
+                dir.deleteRecursively()
+                println("Cleaned up temp directory: ${dir.name}")
+            } catch (e: Exception) {
+                println("Failed to delete temp directory ${dir.name}: ${e.message}")
+            }
+        }
+    } catch (e: Exception) {
+        println("Error during temp directory cleanup: ${e.message}")
     }
 }
