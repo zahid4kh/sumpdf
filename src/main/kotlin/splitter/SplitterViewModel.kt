@@ -39,6 +39,12 @@ class SplitterViewModel(
             is SplitterIntent.HideSuccessDialog -> hideSuccessDialog()
             is SplitterIntent.ShowErrorDialog -> showErrorDialog()
             is SplitterIntent.HideErrorDialog -> hideErrorDialog()
+            is SplitterIntent.SelectSplitMode -> selectSplitMode(intent.mode)
+            is SplitterIntent.DeleteExtractedPage -> deleteExtractedPage(intent.page)
+            is SplitterIntent.MovePageLeft -> movePageLeft(intent.page)
+            is SplitterIntent.MovePageRight -> movePageRight(intent.page)
+            is SplitterIntent.SaveExtractedPages -> saveExtractedPages()
+            is SplitterIntent.MergeAndSavePages -> mergeAndSavePages()
         }
     }
 
