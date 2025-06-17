@@ -1,79 +1,191 @@
 package splitter
 
-import combiner.PdfFile
+import Database
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.pdfbox.Loader
-import org.apache.pdfbox.cos.COSDocument
 import org.apache.pdfbox.multipdf.Splitter
 import org.apache.pdfbox.pdmodel.PDDocument
 import java.io.File
 import java.io.IOException
 
-class SplitterViewModel {
-
+class SplitterViewModel(
+    private val database: Database
+) {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val scope = CoroutineScope(Dispatchers.Main)
 
-
-    fun splitWholePdf(file: File){
-        val document: PDDocument = Loader.loadPDF(file)
-        val splitter = Splitter()
-
-        val pages: List<PDDocument> = splitter.split(document)
-        val name = setOutputFileName(file.nameWithoutExtension+"_")
-        val outputPath = selectOutputPath(_uiState.value.outputFileDestination)
-
-        try{
-            var num = 1
-            for(doc in pages){
-                doc.save("$outputPath$name$num.pdf")
-                num++
-                doc.close()
-            }
-        }catch(e: IOException){
-            e.printStackTrace()
+    fun handleIntent(intent: SplitterIntent) {
+        when (intent) {
+            is SplitterIntent.ShowFileChooser -> showFileChooser()
+            is SplitterIntent.HideFileChooser -> hideFileChooser()
+            is SplitterIntent.ShowFolderChooser -> showFolderChooser()
+            is SplitterIntent.HideFolderChooser -> hideFolderChooser()
+            is SplitterIntent.AddPdfFile -> addPdfFile(intent.file)
+            is SplitterIntent.SelectOutputPath -> selectOutputPath(intent.path)
+            is SplitterIntent.SetOutputFileName -> setOutputFileName(intent.name)
+            is SplitterIntent.SplitPdf -> splitPdf()
+            is SplitterIntent.ClearAll -> clearAll()
+            is SplitterIntent.ClearMessages -> clearMessages()
+            is SplitterIntent.ShowSuccessDialog -> showSuccessDialog()
+            is SplitterIntent.HideSuccessDialog -> hideSuccessDialog()
+            is SplitterIntent.ShowErrorDialog -> showErrorDialog()
+            is SplitterIntent.HideErrorDialog -> hideErrorDialog()
         }
-
     }
 
-    fun addPdfFile(file: File){
+    private fun splitPdf() {
+        val selectedFile = _uiState.value.selectedFile
+        val outputPath = _uiState.value.outputFileDestination
+        val outputPrefix = _uiState.value.outputFileName
+
+        if (selectedFile == null) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Please select a PDF file to split.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        if (outputPath.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Please select an output directory.",
+                showErrorDialog = true
+            )
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(
+            isSplitting = true,
+            splitProgress = 0f,
+            currentPageInfo = "Initializing...",
+            errorMessage = null
+        )
+
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val document: PDDocument = Loader.loadPDF(selectedFile)
+                    val totalPages = document.numberOfPages
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            totalPages = totalPages,
+                            currentPageInfo = "Splitting $totalPages pages..."
+                        )
+                    }
+
+                    delay(300)
+
+                    val splitter = Splitter()
+                    val pages: List<PDDocument> = splitter.split(document)
+
+                    val outputDir = File(outputPath)
+                    if (!outputDir.exists()) {
+                        outputDir.mkdirs()
+                    }
+
+                    var successCount = 0
+                    var failureCount = 0
+
+                    pages.forEachIndexed { index, pageDoc ->
+                        try {
+                            val pageNumber = index + 1
+                            val fileName = "${outputPrefix}page_$pageNumber.pdf"
+                            val outputFile = File(outputDir, fileName)
+
+                            withContext(Dispatchers.Main) {
+                                _uiState.value = _uiState.value.copy(
+                                    currentPageInfo = "Saving page $pageNumber of $totalPages...",
+                                    splitProgress = (pageNumber.toFloat() / totalPages)
+                                )
+                            }
+
+                            pageDoc.save(outputFile.absolutePath)
+                            pageDoc.close()
+                            successCount++
+
+                            delay(200)
+                        } catch (e: IOException) {
+                            failureCount++
+                            println("Failed to save page ${index + 1}: ${e.message}")
+                        }
+                    }
+
+                    document.close()
+
+                    withContext(Dispatchers.Main) {
+                        if (failureCount == 0) {
+                            _uiState.value = _uiState.value.copy(
+                                isSplitting = false,
+                                splitProgress = 1f,
+                                successMessage = "Successfully split PDF into $successCount pages!\nSaved to: $outputPath",
+                                showSuccessDialog = true,
+                                currentPageInfo = null
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                isSplitting = false,
+                                errorMessage = "Split completed with errors. $successCount pages saved, $failureCount failed.",
+                                showErrorDialog = true,
+                                currentPageInfo = null
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isSplitting = false,
+                    errorMessage = "Failed to split PDF: ${e.message}",
+                    showErrorDialog = true,
+                    currentPageInfo = null,
+                    splitProgress = 0f
+                )
+            }
+        }
+    }
+
+    private fun addPdfFile(file: File) {
         if (file.extension.lowercase() == "pdf") {
             _uiState.value = _uiState.value.copy(
                 selectedFile = file,
+                outputFileName = "${file.nameWithoutExtension}_",
                 errorMessage = null
-            )
-            _uiState.value = _uiState.value.copy(
-                selectedFile = File(file.path),
             )
         } else {
             _uiState.value = _uiState.value.copy(
                 errorMessage = "Please select a valid PDF file."
             )
-            _uiState.value = _uiState.value.copy(showErrorDialog = true)
+            showErrorDialog()
         }
         hideFileChooser()
     }
 
-    fun selectOutputPath(path: String?): String?{
-        _uiState.value = _uiState.value.copy(
-            outputFileDestination = path
-        )
-        return path
+    private fun selectOutputPath(path: String) {
+        _uiState.value = _uiState.value.copy(outputFileDestination = path)
     }
 
-    private fun clear() {
-        _uiState.value = _uiState.value.copy(selectedFile = null)
-    }
-
-    private fun setOutputFileName(name: String): String {
+    private fun setOutputFileName(name: String) {
         _uiState.value = _uiState.value.copy(outputFileName = name)
-        return name
+    }
+
+    private fun clearAll() {
+        _uiState.value = UiState()
+    }
+
+    private fun clearMessages() {
+        _uiState.value = _uiState.value.copy(
+            errorMessage = null,
+            successMessage = null
+        )
     }
 
     private fun showFileChooser() {
@@ -84,19 +196,31 @@ class SplitterViewModel {
         _uiState.value = _uiState.value.copy(showFileChooser = false)
     }
 
-    private fun showFileSaver() {
-        if (_uiState.value.selectedFile == null) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Please add at least one PDF file.")
-            _uiState.value = _uiState.value.copy(showErrorDialog = true)
-            return
-        }
-        _uiState.value = _uiState.value.copy(showFileSaver = true)
+    private fun showFolderChooser() {
+        _uiState.value = _uiState.value.copy(showFolderChooser = true)
     }
 
-    private fun hideFileSaver() {
-        _uiState.value = _uiState.value.copy(showFileSaver = false)
+    private fun hideFolderChooser() {
+        _uiState.value = _uiState.value.copy(showFolderChooser = false)
     }
 
+    private fun showSuccessDialog() {
+        _uiState.value = _uiState.value.copy(showSuccessDialog = true)
+    }
+
+    private fun hideSuccessDialog() {
+        _uiState.value = _uiState.value.copy(showSuccessDialog = false)
+        clearMessages()
+    }
+
+    private fun showErrorDialog() {
+        _uiState.value = _uiState.value.copy(showErrorDialog = true)
+    }
+
+    private fun hideErrorDialog() {
+        _uiState.value = _uiState.value.copy(showErrorDialog = false)
+        clearMessages()
+    }
 
     data class UiState(
         val isSplitting: Boolean = false,
