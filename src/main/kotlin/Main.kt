@@ -10,6 +10,7 @@ import moe.tlaster.precompose.ProvidePreComposeLocals
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.context.startKoin
 import org.koin.java.KoinJavaComponent.getKoin
+import splitter.SplitterViewModel
 import sumpdf.resources.Res
 import sumpdf.resources.sumpdf
 import java.awt.Dimension
@@ -26,6 +27,7 @@ fun main() = application {
 
     val combinerViewModel = getKoin().get<CombinerViewModel>()
     val converterViewModel = getKoin().get<ConverterViewModel>()
+    val splitterViewModel = getKoin().get<SplitterViewModel>()
 
     Window(
         onCloseRequest = ::exitApplication,
