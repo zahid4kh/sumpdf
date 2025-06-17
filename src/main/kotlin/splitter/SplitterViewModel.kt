@@ -224,6 +224,8 @@ class SplitterViewModel(
 
     data class UiState(
         val isSplitting: Boolean = false,
+        val isSaving: Boolean = false,
+        val isMerging: Boolean = false,
         val showFileChooser: Boolean = false,
         val showFolderChooser: Boolean = false,
         val showSuccessDialog: Boolean = false,
@@ -234,7 +236,13 @@ class SplitterViewModel(
         val outputFileDestination: String? = null,
         val outputFileName: String = "",
         val splitProgress: Float = 0f,
+        val saveProgress: Float = 0f,
+        val mergeProgress: Float = 0f,
         val currentPageInfo: String? = null,
-        val totalPages: Int = 0
+        val currentSaveInfo: String? = null,
+        val currentMergeInfo: String? = null,
+        val totalPages: Int = 0,
+        val splitMode: SplitMode = SplitMode.SAVE_ALL,
+        val extractedPages: List<ExtractedPage> = emptyList()
     )
 }
