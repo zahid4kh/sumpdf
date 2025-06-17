@@ -3,6 +3,9 @@ package splitter
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -59,143 +62,218 @@ fun SplitterContent(
             textAlign = TextAlign.Center
         )
 
-        DragDropArea(
-            modifier = Modifier.weight(1f),
-            onFilesDropped = { files ->
-                val pdfFiles = files.filter { file ->
-                    file.extension.lowercase() == "pdf"
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButtonOption(
+                selected = uiState.splitMode == SplitMode.SAVE_ALL,
+                onClick = { viewModel.handleIntent(SplitterIntent.SelectSplitMode(SplitMode.SAVE_ALL)) },
+                text = "Save all splitted pages"
+            )
+
+            RadioButtonOption(
+                selected = uiState.splitMode == SplitMode.DELETE_PAGES,
+                onClick = { viewModel.handleIntent(SplitterIntent.SelectSplitMode(SplitMode.DELETE_PAGES)) },
+                text = "Delete some pages after splitting"
+            )
+
+            AnimatedVisibility(
+                visible = uiState.splitMode == SplitMode.DELETE_PAGES,
+                enter = slideInHorizontally() + fadeIn(),
+                exit = slideOutHorizontally() + fadeOut()
+            ) {
+                RadioButtonOption(
+                    selected = uiState.splitMode == SplitMode.MERGE_PAGES,
+                    onClick = { viewModel.handleIntent(SplitterIntent.SelectSplitMode(SplitMode.MERGE_PAGES)) },
+                    text = "Merge pages"
+                )
+            }
+        }
+
+        if (uiState.extractedPages.isEmpty()) {
+            DragDropArea(
+                modifier = Modifier.weight(1f),
+                onFilesDropped = { files ->
+                    val pdfFiles = files.filter { file ->
+                        file.extension.lowercase() == "pdf"
+                    }
+                    if (pdfFiles.isNotEmpty()) {
+                        viewModel.handleIntent(SplitterIntent.AddPdfFile(pdfFiles.first()))
+                    }
                 }
-                if (pdfFiles.isNotEmpty()) {
-                    viewModel.handleIntent(SplitterIntent.AddPdfFile(pdfFiles.first()))
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (uiState.selectedFile == null) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = "PDF File",
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Drag & drop a PDF file here\nor click 'Select PDF' button",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = "Selected PDF",
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = uiState.selectedFile!!.name,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "Size: ${formatFileSize(uiState.selectedFile!!.length())}",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
                 }
             }
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+        } else {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                if (uiState.selectedFile == null) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Extracted Pages (${uiState.extractedPages.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(200.dp),
+                        contentPadding = PaddingValues(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Description,
-                            contentDescription = "PDF File",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Drag & drop a PDF file here\nor click 'Select PDF' button",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Description,
-                            contentDescription = "Selected PDF",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = uiState.selectedFile!!.name,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Size: ${formatFileSize(uiState.selectedFile!!.length())}",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        items(uiState.extractedPages) { page ->
+                            ExtractedPageCard(
+                                page = page,
+                                showReorderButtons = uiState.splitMode == SplitMode.MERGE_PAGES,
+                                canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
+                                canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
+                                onDelete = { viewModel.handleIntent(SplitterIntent.DeleteExtractedPage(page)) },
+                                onMoveLeft = { viewModel.handleIntent(SplitterIntent.MovePageLeft(page)) },
+                                onMoveRight = { viewModel.handleIntent(SplitterIntent.MovePageRight(page)) }
+                            )
+                        }
                     }
                 }
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedTextField(
-                value = uiState.outputFileName,
-                onValueChange = { viewModel.handleIntent(SplitterIntent.SetOutputFileName(it)) },
-                textStyle = TextStyle(
-                    fontFamily = MaterialTheme.typography.labelMedium.fontFamily
-                ),
-                label = { Text("Output filename prefix", fontFamily = MaterialTheme.typography.labelSmall.fontFamily) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = MaterialTheme.shapes.large,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                )
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        if (uiState.splitMode == SplitMode.SAVE_ALL || uiState.extractedPages.isEmpty()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ){
-                    Text(
-                        text = "Output folder:",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                OutlinedTextField(
+                    value = uiState.outputFileName,
+                    onValueChange = { viewModel.handleIntent(SplitterIntent.SetOutputFileName(it)) },
+                    textStyle = TextStyle(
+                        fontFamily = MaterialTheme.typography.labelMedium.fontFamily
+                    ),
+                    label = { Text("Output filename prefix", fontFamily = MaterialTheme.typography.labelSmall.fontFamily) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.large,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
+                )
 
-                    Button(
-                        onClick = { viewModel.handleIntent(SplitterIntent.ShowFolderChooser) },
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Folder,
-                            contentDescription = "Select folder",
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text("Choose Folder", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-
-
-                if (!uiState.outputFileDestination.isNullOrBlank()) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                    ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ){
                         Text(
-                            text = uiState.outputFileDestination!!,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            text = "Output folder:",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+
+                        Button(
+                            onClick = { viewModel.handleIntent(SplitterIntent.ShowFolderChooser) },
+                            shape = MaterialTheme.shapes.medium,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Folder,
+                                contentDescription = "Select folder",
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            Text("Choose Folder", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+
+                    if (!uiState.outputFileDestination.isNullOrBlank()) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
+                            Text(
+                                text = uiState.outputFileDestination!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
         }
 
         AnimatedVisibility(
-            visible = uiState.isSplitting,
+            visible = uiState.isSplitting || uiState.isSaving || uiState.isMerging,
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
@@ -203,9 +281,23 @@ fun SplitterContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (uiState.currentPageInfo != null) {
+                val currentInfo = when {
+                    uiState.isSplitting -> uiState.currentPageInfo
+                    uiState.isSaving -> uiState.currentSaveInfo
+                    uiState.isMerging -> uiState.currentMergeInfo
+                    else -> null
+                }
+
+                val currentProgress = when {
+                    uiState.isSplitting -> uiState.splitProgress
+                    uiState.isSaving -> uiState.saveProgress
+                    uiState.isMerging -> uiState.mergeProgress
+                    else -> 0f
+                }
+
+                if (currentInfo != null) {
                     Text(
-                        text = uiState.currentPageInfo!!,
+                        text = currentInfo,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth(),
@@ -216,7 +308,7 @@ fun SplitterContent(
                 }
 
                 LinearProgressIndicator(
-                    progress = { uiState.splitProgress },
+                    progress = { currentProgress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp),
@@ -225,7 +317,7 @@ fun SplitterContent(
                 )
 
                 Text(
-                    text = "${(uiState.splitProgress * 100).toInt()}%",
+                    text = "${(currentProgress * 100).toInt()}%",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
@@ -266,75 +358,14 @@ fun SplitterContent(
             }
         }
 
-        //Spacer(modifier = Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(15.dp)
-        ) {
-            Button(
-                onClick = { viewModel.handleIntent(SplitterIntent.ShowFileChooser) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    "Select PDF",
-                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Button(
-                onClick = { viewModel.handleIntent(SplitterIntent.ClearAll) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    "Clear All",
-                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = { viewModel.handleIntent(SplitterIntent.SplitPdf) },
-                enabled = uiState.selectedFile != null &&
-                        !uiState.outputFileDestination.isNullOrBlank() &&
-                        !uiState.isSplitting,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (uiState.isSplitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onTertiary,
-                        strokeWidth = 2.dp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(
-                    if (uiState.isSplitting) "Splitting..." else "Split PDF",
-                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        ActionButtons(
+            uiState = uiState,
+            onSelectPdf = { viewModel.handleIntent(SplitterIntent.ShowFileChooser) },
+            onClearAll = { viewModel.handleIntent(SplitterIntent.ClearAll) },
+            onSplitPdf = { viewModel.handleIntent(SplitterIntent.SplitPdf) },
+            onSavePages = { viewModel.handleIntent(SplitterIntent.SaveExtractedPages) },
+            onMergeAndSave = { viewModel.handleIntent(SplitterIntent.MergeAndSavePages) }
+        )
     }
 
     if (uiState.showFileChooser) {
@@ -366,7 +397,7 @@ fun SplitterContent(
     if (uiState.showSuccessDialog) {
         InfoDialog(
             title = "Success!",
-            message = uiState.successMessage ?: "PDF split successfully!",
+            message = uiState.successMessage ?: "Operation completed successfully!",
             onClose = {
                 viewModel.handleIntent(SplitterIntent.HideSuccessDialog)
             }
