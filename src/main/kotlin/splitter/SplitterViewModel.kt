@@ -101,15 +101,16 @@ class SplitterViewModel {
     data class UiState(
         val isSplitting: Boolean = false,
         val showFileChooser: Boolean = false,
-        val showFileSaver: Boolean = false,
+        val showFolderChooser: Boolean = false,
         val showSuccessDialog: Boolean = false,
         val showErrorDialog: Boolean = false,
         val selectedFile: File? = null,
         val errorMessage: String? = null,
         val successMessage: String? = null,
-        val isLoading: Boolean = false,
-        val num: Int = 0,
-        val outputFileDestination: String? = "/home/zahid/Documents/test/",
-        val outputFileName: String? = selectedFile?.name + "_"
+        val outputFileDestination: String? = null,
+        val outputFileName: String = "",
+        val splitProgress: Float = 0f,
+        val currentPageInfo: String? = null,
+        val totalPages: Int = 0
     )
 }
