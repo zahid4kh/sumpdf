@@ -152,6 +152,10 @@ class SplitterViewModel(
                             }
                         }
                     } else {
+                        val tempDir = File(System.getProperty("java.io.tmpdir"), "sumpdf_temp_${System.currentTimeMillis()}")
+                        tempDir.mkdirs()
+                        println("Temp directory: $tempDir")
+
                         val extractedPages = pages.mapIndexed { index, pageDoc ->
                             val pageNumber = index + 1
                             val fileName = "${outputPrefix}page_$pageNumber.pdf"
@@ -163,14 +167,19 @@ class SplitterViewModel(
                                 )
                             }
 
+                            val tempFile = File(tempDir, fileName)
+                            pageDoc.save(tempFile.absolutePath)
+                            val fileSize = tempFile.length()
+                            pageDoc.close()
+
                             delay(150)
 
                             ExtractedPage(
                                 id = UUID.randomUUID().toString(),
                                 pageNumber = pageNumber,
                                 fileName = fileName,
-                                document = pageDoc,
-                                size = 50000L + (0..100000).random()
+                                tempFilePath = tempFile.absolutePath,
+                                size = fileSize
                             )
                         }
 
@@ -239,6 +248,7 @@ class SplitterViewModel(
                     extractedPages.forEachIndexed { index, page ->
                         try {
                             val outputFile = File(outputDir, page.fileName)
+                            val tempFile = File(page.tempFilePath)
 
                             withContext(Dispatchers.Main) {
                                 _uiState.value = _uiState.value.copy(
@@ -247,8 +257,7 @@ class SplitterViewModel(
                                 )
                             }
 
-                            page.document.save(outputFile.absolutePath)
-                            page.document.close()
+                            tempFile.copyTo(outputFile, overwrite = true)
                             successCount++
 
                             delay(300)
@@ -256,6 +265,17 @@ class SplitterViewModel(
                             failureCount++
                             println("Failed to save ${page.fileName}: ${e.message}")
                         }
+                    }
+
+                    extractedPages.forEach { page ->
+                        try {
+                            File(page.tempFilePath).delete()
+                            File(page.tempFilePath).parentFile?.let { parent ->
+                                if (parent.listFiles()?.isEmpty() == true) {
+                                    parent.delete()
+                                }
+                            }
+                        } catch (e: Exception) {}
                     }
 
                     withContext(Dispatchers.Main) {
@@ -348,10 +368,7 @@ class SplitterViewModel(
                             )
                         }
 
-                        val tempFile = File.createTempFile("temp_page_${page.pageNumber}", ".pdf")
-                        page.document.save(tempFile.absolutePath)
-                        merger.addSource(tempFile)
-
+                        merger.addSource(File(page.tempFilePath))
                         delay(200)
                     }
 
@@ -364,7 +381,16 @@ class SplitterViewModel(
 
                     merger.mergeDocuments(null, CompressParameters(500))
 
-                    extractedPages.forEach { it.document.close() }
+                    extractedPages.forEach { page ->
+                        try {
+                            File(page.tempFilePath).delete()
+                            File(page.tempFilePath).parentFile?.let { parent ->
+                                if (parent.listFiles()?.isEmpty() == true) {
+                                    parent.delete()
+                                }
+                            }
+                        } catch (e: Exception) {}
+                    }
 
                     delay(300)
 
@@ -392,16 +418,28 @@ class SplitterViewModel(
     }
 
     private fun selectSplitMode(mode: SplitMode) {
+        val currentMode = _uiState.value.splitMode
+
+        val shouldClearPages = when {
+            mode == SplitMode.SAVE_ALL -> true
+            currentMode == SplitMode.SAVE_ALL -> true
+            else -> false
+        }
+
         _uiState.value = _uiState.value.copy(
             splitMode = mode,
-            extractedPages = emptyList()
+            extractedPages = if (shouldClearPages) emptyList() else _uiState.value.extractedPages
         )
     }
 
     private fun deleteExtractedPage(page: ExtractedPage) {
         val currentPages = _uiState.value.extractedPages.toMutableList()
         currentPages.remove(page)
-        page.document.close()
+
+        try {
+            File(page.tempFilePath).delete()
+        } catch (e: Exception) { }
+
         _uiState.value = _uiState.value.copy(extractedPages = currentPages)
     }
 
@@ -451,7 +489,17 @@ class SplitterViewModel(
     }
 
     private fun clearAll() {
-        _uiState.value.extractedPages.forEach { it.document.close() }
+        _uiState.value.extractedPages.forEach { page ->
+            try {
+                File(page.tempFilePath).delete()
+                File(page.tempFilePath).parentFile?.let { parent ->
+                    if (parent.listFiles()?.isEmpty() == true) {
+                        parent.delete()
+                    }
+                }
+            } catch (e: Exception) {}
+        }
+
         _uiState.value = UiState()
     }
 

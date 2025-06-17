@@ -36,6 +36,6 @@ data class ExtractedPage(
     val id: String,
     val pageNumber: Int,
     val fileName: String,
-    val document: PDDocument,
+    val tempFilePath: String,
     val size: Long = 0L
 )
