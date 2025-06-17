@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.pdfbox.Loader
+import org.apache.pdfbox.multipdf.PDFMergerUtility
 import org.apache.pdfbox.multipdf.Splitter
 import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import java.io.File
 import java.io.IOException
+import java.util.*
 
 class SplitterViewModel(
     private val database: Database
@@ -52,6 +55,7 @@ class SplitterViewModel(
         val selectedFile = _uiState.value.selectedFile
         val outputPath = _uiState.value.outputFileDestination
         val outputPrefix = _uiState.value.outputFileName
+        val splitMode = _uiState.value.splitMode
 
         if (selectedFile == null) {
             _uiState.value = _uiState.value.copy(
@@ -61,7 +65,7 @@ class SplitterViewModel(
             return
         }
 
-        if (outputPath.isNullOrBlank()) {
+        if (splitMode == SplitMode.SAVE_ALL && outputPath.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
                 errorMessage = "Please select an output directory.",
                 showErrorDialog = true
@@ -94,55 +98,91 @@ class SplitterViewModel(
                     val splitter = Splitter()
                     val pages: List<PDDocument> = splitter.split(document)
 
-                    val outputDir = File(outputPath)
-                    if (!outputDir.exists()) {
-                        outputDir.mkdirs()
-                    }
+                    if (splitMode == SplitMode.SAVE_ALL) {
+                        val outputDir = File(outputPath!!)
+                        if (!outputDir.exists()) {
+                            outputDir.mkdirs()
+                        }
 
-                    var successCount = 0
-                    var failureCount = 0
+                        var successCount = 0
+                        var failureCount = 0
 
-                    pages.forEachIndexed { index, pageDoc ->
-                        try {
+                        pages.forEachIndexed { index, pageDoc ->
+                            try {
+                                val pageNumber = index + 1
+                                val fileName = "${outputPrefix}page_$pageNumber.pdf"
+                                val outputFile = File(outputDir, fileName)
+
+                                withContext(Dispatchers.Main) {
+                                    _uiState.value = _uiState.value.copy(
+                                        currentPageInfo = "Saving page $pageNumber of $totalPages...",
+                                        splitProgress = (pageNumber.toFloat() / totalPages)
+                                    )
+                                }
+
+                                pageDoc.save(outputFile.absolutePath)
+                                pageDoc.close()
+                                successCount++
+
+                                delay(200)
+                            } catch (e: IOException) {
+                                failureCount++
+                                println("Failed to save page ${index + 1}: ${e.message}")
+                            }
+                        }
+
+                        document.close()
+
+                        withContext(Dispatchers.Main) {
+                            if (failureCount == 0) {
+                                _uiState.value = _uiState.value.copy(
+                                    isSplitting = false,
+                                    splitProgress = 1f,
+                                    successMessage = "Successfully split PDF into $successCount pages!\nSaved to: $outputPath",
+                                    showSuccessDialog = true,
+                                    currentPageInfo = null
+                                )
+                            } else {
+                                _uiState.value = _uiState.value.copy(
+                                    isSplitting = false,
+                                    errorMessage = "Split completed with errors. $successCount pages saved, $failureCount failed.",
+                                    showErrorDialog = true,
+                                    currentPageInfo = null
+                                )
+                            }
+                        }
+                    } else {
+                        val extractedPages = pages.mapIndexed { index, pageDoc ->
                             val pageNumber = index + 1
                             val fileName = "${outputPrefix}page_$pageNumber.pdf"
-                            val outputFile = File(outputDir, fileName)
 
                             withContext(Dispatchers.Main) {
                                 _uiState.value = _uiState.value.copy(
-                                    currentPageInfo = "Saving page $pageNumber of $totalPages...",
+                                    currentPageInfo = "Extracting page $pageNumber of $totalPages...",
                                     splitProgress = (pageNumber.toFloat() / totalPages)
                                 )
                             }
 
-                            pageDoc.save(outputFile.absolutePath)
-                            pageDoc.close()
-                            successCount++
+                            delay(150)
 
-                            delay(200)
-                        } catch (e: IOException) {
-                            failureCount++
-                            println("Failed to save page ${index + 1}: ${e.message}")
+                            ExtractedPage(
+                                id = UUID.randomUUID().toString(),
+                                pageNumber = pageNumber,
+                                fileName = fileName,
+                                document = pageDoc,
+                                size = 50000L + (0..100000).random()
+                            )
                         }
-                    }
 
-                    document.close()
+                        document.close()
 
-                    withContext(Dispatchers.Main) {
-                        if (failureCount == 0) {
+                        withContext(Dispatchers.Main) {
                             _uiState.value = _uiState.value.copy(
                                 isSplitting = false,
                                 splitProgress = 1f,
-                                successMessage = "Successfully split PDF into $successCount pages!\nSaved to: $outputPath",
-                                showSuccessDialog = true,
-                                currentPageInfo = null
-                            )
-                        } else {
-                            _uiState.value = _uiState.value.copy(
-                                isSplitting = false,
-                                errorMessage = "Split completed with errors. $successCount pages saved, $failureCount failed.",
-                                showErrorDialog = true,
-                                currentPageInfo = null
+                                extractedPages = extractedPages,
+                                currentPageInfo = null,
+                                successMessage = "Successfully extracted $totalPages pages! Review and manage pages below."
                             )
                         }
                     }
