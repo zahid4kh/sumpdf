@@ -10,11 +10,9 @@ import moe.tlaster.precompose.ProvidePreComposeLocals
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.context.startKoin
 import org.koin.java.KoinJavaComponent.getKoin
-import splitter.SplitterViewModel
 import sumpdf.resources.Res
 import sumpdf.resources.sumpdf
 import java.awt.Dimension
-import java.io.File
 
 fun main() = application {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog")
@@ -28,9 +26,6 @@ fun main() = application {
 
     val combinerViewModel = getKoin().get<CombinerViewModel>()
     val converterViewModel = getKoin().get<ConverterViewModel>()
-
-    val splitterViewModel = SplitterViewModel()
-    splitterViewModel.splitWholePdf(File("/home/zahid/Documents/thesis_docs/EAHJ_SciTec_2023_thesis_manual.pdf"))
 
     Window(
         onCloseRequest = ::exitApplication,
