@@ -1,5 +1,6 @@
 package splitter
 
+import org.apache.pdfbox.pdmodel.PDDocument
 import java.io.File
 
 sealed class SplitterIntent {
@@ -35,6 +36,6 @@ data class ExtractedPage(
     val id: String,
     val pageNumber: Int,
     val fileName: String,
-    val document: org.apache.pdfbox.pdmodel.PDDocument,
+    val document: PDDocument,
     val size: Long = 0L
 )
