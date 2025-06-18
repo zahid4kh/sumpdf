@@ -24,6 +24,8 @@ sealed class SplitterIntent {
     data class MovePageRight(val page: ExtractedPage) : SplitterIntent()
     object SaveExtractedPages : SplitterIntent()
     object MergeAndSavePages : SplitterIntent()
+    data class StartDeleteAnimation(val page: ExtractedPage) : SplitterIntent()
+    data class StartMoveAnimation(val page: ExtractedPage, val direction: String) : SplitterIntent()
 }
 
 enum class SplitMode {

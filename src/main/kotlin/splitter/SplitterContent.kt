@@ -189,9 +189,12 @@ fun SplitterContent(
                                 showReorderButtons = uiState.splitMode == SplitMode.MERGE_PAGES,
                                 canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
                                 canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
-                                onDelete = { viewModel.handleIntent(SplitterIntent.DeleteExtractedPage(page)) },
-                                onMoveLeft = { viewModel.handleIntent(SplitterIntent.MovePageLeft(page)) },
-                                onMoveRight = { viewModel.handleIntent(SplitterIntent.MovePageRight(page)) }
+                                onDelete = { viewModel.handleIntent(SplitterIntent.StartDeleteAnimation(page)) },
+                                onMoveLeft = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "left")) },
+                                onMoveRight = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "right")) },
+                                isAnimatingDelete = uiState.animatingDeletePageId == page.id,
+                                isAnimatingMove = uiState.animatingMovePageId == page.id,
+                                moveDirection = uiState.moveDirection
                             )
                         }
                     }

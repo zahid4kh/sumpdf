@@ -48,6 +48,8 @@ class SplitterViewModel(
             is SplitterIntent.MovePageRight -> movePageRight(intent.page)
             is SplitterIntent.SaveExtractedPages -> saveExtractedPages()
             is SplitterIntent.MergeAndSavePages -> mergeAndSavePages()
+            is SplitterIntent.StartDeleteAnimation -> startDeleteAnimation(intent.page)
+            is SplitterIntent.StartMoveAnimation -> startMoveAnimation(intent.page, intent.direction)
         }
     }
 
@@ -503,6 +505,36 @@ class SplitterViewModel(
         _uiState.value = UiState()
     }
 
+    private fun startDeleteAnimation(page: ExtractedPage) {
+        _uiState.value = _uiState.value.copy(animatingDeletePageId = page.id)
+
+        scope.launch {
+            delay(300)
+            deleteExtractedPage(page)
+            _uiState.value = _uiState.value.copy(animatingDeletePageId = null)
+        }
+    }
+
+    private fun startMoveAnimation(page: ExtractedPage, direction: String) {
+        _uiState.value = _uiState.value.copy(
+            animatingMovePageId = page.id,
+            moveDirection = direction
+        )
+
+        scope.launch {
+            delay(400)
+            if (direction == "left") {
+                movePageLeft(page)
+            } else {
+                movePageRight(page)
+            }
+            _uiState.value = _uiState.value.copy(
+                animatingMovePageId = null,
+                moveDirection = null
+            )
+        }
+    }
+
     private fun clearMessages() {
         _uiState.value = _uiState.value.copy(
             errorMessage = null,
@@ -566,6 +598,9 @@ class SplitterViewModel(
         val currentMergeInfo: String? = null,
         val totalPages: Int = 0,
         val splitMode: SplitMode = SplitMode.SAVE_ALL,
-        val extractedPages: List<ExtractedPage> = emptyList()
+        val extractedPages: List<ExtractedPage> = emptyList(),
+        val animatingDeletePageId: String? = null,
+        val animatingMovePageId: String? = null,
+        val moveDirection: String? = null
     )
 }

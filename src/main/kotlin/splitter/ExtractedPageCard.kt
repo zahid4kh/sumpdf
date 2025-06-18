@@ -1,5 +1,7 @@
 package splitter
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -19,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,14 +43,56 @@ fun ExtractedPageCard(
     canMoveRight: Boolean,
     onDelete: () -> Unit,
     onMoveLeft: () -> Unit,
-    onMoveRight: () -> Unit
+    onMoveRight: () -> Unit,
+    isAnimatingDelete: Boolean = false,
+    isAnimatingMove: Boolean = false,
+    moveDirection: String? = null
 ) {
     var isHovered by remember { mutableStateOf(false) }
+    val density = LocalDensity.current.density
+
+    LaunchedEffect(Unit){
+        println("density: $density")
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = when {
+            isAnimatingDelete -> 0f
+            isAnimatingMove && moveDirection == "left" -> 1.1f
+            isAnimatingMove && moveDirection == "right" -> 0.7f
+            else -> 1f
+        },
+        animationSpec = tween(300),
+        label = "scale"
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (isAnimatingDelete) 0f else 1f,
+        animationSpec = tween(300),
+        label = "alpha"
+    )
+
+    val offsetX by animateFloatAsState(
+        targetValue = when {
+            isAnimatingMove && moveDirection == "left" -> -230f
+            isAnimatingMove && moveDirection == "right" -> 230f
+            else -> 0f
+        },
+        animationSpec = tween(400),
+        label = "offsetX"
+    )
+
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
+            .width(170.dp)
+            .height(170.dp)
+            .offset(x = offsetX.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                this.alpha = alpha
+            }
             .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
             .onPointerEvent(PointerEventType.Enter) {
                 isHovered = true
