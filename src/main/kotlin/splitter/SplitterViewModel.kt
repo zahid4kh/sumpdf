@@ -469,6 +469,7 @@ class SplitterViewModel(
         if (file.extension.lowercase() == "pdf") {
             val document: PDDocument = Loader.loadPDF(file)
             val numOfPages = document.numberOfPages
+            document.close()
             _uiState.value = _uiState.value.copy(
                 selectedFile = file,
                 totalPages = numOfPages,
