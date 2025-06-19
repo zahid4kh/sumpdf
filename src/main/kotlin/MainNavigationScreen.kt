@@ -1,4 +1,8 @@
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -267,7 +271,7 @@ fun MainNavigationScreen(
 
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Adaptive(300.dp),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().animateContentSize(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalItemSpacing = 16.dp,
                 content = {
@@ -275,7 +279,8 @@ fun MainNavigationScreen(
                         OutlinedCard(
                             modifier = Modifier
                                 .height(cardHeight)
-                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                                .pointerHoverIcon(icon = PointerIcon.Hand)
+                                .animateItem(placementSpec = spring()),
                             shape = RoundedCornerShape(16.dp),
                             onClick = onNavigateToCombiner
                         ) {
@@ -313,7 +318,8 @@ fun MainNavigationScreen(
                         OutlinedCard(
                             modifier = Modifier
                                 .height(cardHeight)
-                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                                .pointerHoverIcon(icon = PointerIcon.Hand)
+                                .animateItem(placementSpec = spring()),
                             shape = RoundedCornerShape(16.dp),
                             onClick = onNavigateToConverter
                         ) {
@@ -351,7 +357,8 @@ fun MainNavigationScreen(
                         OutlinedCard(
                             modifier = Modifier
                                 .height(cardHeight)
-                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                                .pointerHoverIcon(icon = PointerIcon.Hand)
+                                .animateItem(placementSpec = spring()),
                             shape = RoundedCornerShape(16.dp),
                             onClick = onNavigateToSplitter
                         ) {
@@ -389,7 +396,8 @@ fun MainNavigationScreen(
                         OutlinedCard(
                             modifier = Modifier
                                 .height(cardHeight)
-                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                                .pointerHoverIcon(icon = PointerIcon.Hand)
+                                .animateItem(placementSpec = spring()),
                             shape = RoundedCornerShape(16.dp),
                             onClick = onNavigateToSelectiveSplitter
                         ) {
