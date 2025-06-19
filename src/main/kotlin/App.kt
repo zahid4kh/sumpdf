@@ -14,6 +14,8 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import theme.AppTheme
 import combiner.CombinerScreen
 import converter.ConverterScreen
+import selectivesplitter.SelectiveSplitterScreen
+import selectivesplitter.SelectiveSplitterViewModel
 import splitter.SplitterScreen
 import splitter.SplitterViewModel
 
@@ -21,7 +23,8 @@ import splitter.SplitterViewModel
 fun App(
     combinerViewModel: CombinerViewModel,
     converterViewModel: ConverterViewModel,
-    splitterViewModel: SplitterViewModel
+    splitterViewModel: SplitterViewModel,
+    selectiveSplitterViewModel: SelectiveSplitterViewModel
 ) {
     val combinerUiState by combinerViewModel.uiState.collectAsState()
 
@@ -45,6 +48,7 @@ fun App(
                         onNavigateToCombiner = { navigator.navigate("/combiner") },
                         onNavigateToConverter = { navigator.navigate("/converter") },
                         onNavigateToSplitter = {navigator.navigate("/splitter")},
+                        onNavigateToSelectiveSplitter = {navigator.navigate("/selectivesplitter")},
                         viewModel = combinerViewModel
                     )
                 }
@@ -81,6 +85,18 @@ fun App(
                 ) {
                     SplitterScreen(
                         viewModel = splitterViewModel,
+                        onBack = { navigator.goBack() }
+                    )
+                }
+
+                scene("/selectivesplitter",
+                    navTransition = NavTransition(
+                        createTransition = slideInHorizontally(initialOffsetX = {-it/4}) + scaleIn(initialScale = 0.4f),
+                        destroyTransition = scaleOut()
+                    )
+                ) {
+                    SelectiveSplitterScreen(
+                        viewModel = selectiveSplitterViewModel,
                         onBack = { navigator.goBack() }
                     )
                 }
