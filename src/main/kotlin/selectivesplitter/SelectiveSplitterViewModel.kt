@@ -96,7 +96,9 @@ class SelectiveSplitterViewModel(
             isExtracting = true,
             extractProgress = 0f,
             currentPageInfo = "Initializing...",
-            errorMessage = null
+            errorMessage = null,
+            extractedPages = emptyList(),
+            animatingNewPageIds = emptySet()
         )
 
         scope.launch {
@@ -117,8 +119,6 @@ class SelectiveSplitterViewModel(
                     tempDir.mkdirs()
                     println("Temp directory: $tempDir")
 
-                    val extractedPages = mutableListOf<ExtractedPage>()
-
                     for (pageNum in startPage..endPage) {
                         val extractor = org.apache.pdfbox.multipdf.PageExtractor(document, pageNum, pageNum)
                         val extractedDoc = extractor.extract()
@@ -137,15 +137,34 @@ class SelectiveSplitterViewModel(
                         val fileSize = tempFile.length()
                         extractedDoc.close()
 
-                        extractedPages.add(
-                            ExtractedPage(
-                                id = UUID.randomUUID().toString(),
-                                pageNumber = pageNum,
-                                fileName = fileName,
-                                tempFilePath = tempFile.absolutePath,
-                                size = fileSize
-                            )
+                        val newPage = ExtractedPage(
+                            id = UUID.randomUUID().toString(),
+                            pageNumber = pageNum,
+                            fileName = fileName,
+                            tempFilePath = tempFile.absolutePath,
+                            size = fileSize
                         )
+
+                        withContext(Dispatchers.Main) {
+                            val currentPages = _uiState.value.extractedPages.toMutableList()
+                            currentPages.add(newPage)
+                            val newAnimatingIds = _uiState.value.animatingNewPageIds.toMutableSet()
+                            newAnimatingIds.add(newPage.id)
+
+                            _uiState.value = _uiState.value.copy(
+                                extractedPages = currentPages,
+                                animatingNewPageIds = newAnimatingIds
+                            )
+
+                            scope.launch {
+                                delay(600)
+                                val updatedAnimatingIds = _uiState.value.animatingNewPageIds.toMutableSet()
+                                updatedAnimatingIds.remove(newPage.id)
+                                _uiState.value = _uiState.value.copy(
+                                    animatingNewPageIds = updatedAnimatingIds
+                                )
+                            }
+                        }
 
                         delay(150)
                     }
@@ -156,7 +175,6 @@ class SelectiveSplitterViewModel(
                         _uiState.value = _uiState.value.copy(
                             isExtracting = false,
                             extractProgress = 1f,
-                            extractedPages = extractedPages,
                             currentPageInfo = null,
                             successMessage = "Successfully extracted $totalPagesToExtract pages! Review and manage pages below."
                         )

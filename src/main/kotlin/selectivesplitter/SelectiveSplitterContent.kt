@@ -1,6 +1,7 @@
 package selectivesplitter
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -161,25 +162,43 @@ fun SelectiveSplitterContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(uiState.extractedPages) { page ->
-                            ExtractedPageCard(
-                                page = splitter.ExtractedPage(
-                                    id = page.id,
-                                    pageNumber = page.pageNumber,
-                                    fileName = page.fileName,
-                                    tempFilePath = page.tempFilePath,
-                                    size = page.size
-                                ),
-                                showReorderButtons = true,
-                                canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
-                                canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
-                                onDelete = { viewModel.handleIntent(SelectiveSplitterIntent.StartDeleteAnimation(page)) },
-                                onMoveLeft = { viewModel.handleIntent(SelectiveSplitterIntent.StartMoveAnimation(page, "left")) },
-                                onMoveRight = { viewModel.handleIntent(SelectiveSplitterIntent.StartMoveAnimation(page, "right")) },
-                                isAnimatingDelete = uiState.animatingDeletePageId == page.id,
-                                isAnimatingMove = uiState.animatingMovePageId == page.id,
-                                moveDirection = uiState.moveDirection
-                            )
+                        items(
+                            items = uiState.extractedPages,
+                            key = { it.id }
+                        ) { page ->
+                            val isNewPage = uiState.animatingNewPageIds.contains(page.id)
+
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = true,
+                                enter = if (isNewPage) {
+                                    scaleIn(
+                                        initialScale = 0.3f,
+                                        animationSpec = tween(600)
+                                    ) + fadeIn(animationSpec = tween(600))
+                                } else {
+                                    scaleIn(initialScale = 1f, animationSpec = tween(0))
+                                },
+                                modifier = Modifier.animateItem(placementSpec = tween(300))
+                            ) {
+                                ExtractedPageCard(
+                                    page = splitter.ExtractedPage(
+                                        id = page.id,
+                                        pageNumber = page.pageNumber,
+                                        fileName = page.fileName,
+                                        tempFilePath = page.tempFilePath,
+                                        size = page.size
+                                    ),
+                                    showReorderButtons = true,
+                                    canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
+                                    canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
+                                    onDelete = { viewModel.handleIntent(SelectiveSplitterIntent.StartDeleteAnimation(page)) },
+                                    onMoveLeft = { viewModel.handleIntent(SelectiveSplitterIntent.StartMoveAnimation(page, "left")) },
+                                    onMoveRight = { viewModel.handleIntent(SelectiveSplitterIntent.StartMoveAnimation(page, "right")) },
+                                    isAnimatingDelete = uiState.animatingDeletePageId == page.id,
+                                    isAnimatingMove = uiState.animatingMovePageId == page.id,
+                                    moveDirection = uiState.moveDirection
+                                )
+                            }
                         }
                     }
                 }
