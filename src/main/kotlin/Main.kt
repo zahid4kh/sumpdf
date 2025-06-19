@@ -65,7 +65,7 @@ private fun cleanupTempDirectories() {
     try {
         val tempDir = File(System.getProperty("java.io.tmpdir"))
         val sumpdfTempDirs = tempDir.listFiles { file ->
-            file.isDirectory && file.name.startsWith("sumpdf_temp_")
+            file.isDirectory && (file.name.startsWith("sumpdf_temp_") || file.name.startsWith("sumpdf_selective_"))
         }
 
         sumpdfTempDirs?.forEach { dir ->
