@@ -1,5 +1,7 @@
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -35,10 +37,11 @@ fun MainNavigationScreen(
     onNavigateToCombiner: () -> Unit,
     onNavigateToConverter: () -> Unit,
     onNavigateToSplitter: () -> Unit,
+    onNavigateToSelectiveSplitter: () -> Unit,
     viewModel: CombinerViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState()
-    val cardHeight by remember { mutableStateOf(370.dp) }
+    val cardHeight by remember { mutableStateOf(300.dp) }
     var showAppInfo by remember { mutableStateOf(false)}
 
     val isLinux = System.getProperty("os.name").lowercase() == "linux"
@@ -181,8 +184,6 @@ fun MainNavigationScreen(
         )
     }
 
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -262,130 +263,167 @@ fun MainNavigationScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 48.dp)
                 )
-
             }
-            Row(
+
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Adaptive(300.dp),
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(cardHeight)
-                        //.width(cardWidth)
-                        .pointerHoverIcon(icon = PointerIcon.Hand),
-                    shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToCombiner
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.combine_svgrepo_com),
-                            contentDescription = "Combine PDFs",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Combine PDFs",
-                            style = MaterialTheme.typography.titleLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Merge multiple PDF files into one",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalItemSpacing = 16.dp,
+                content = {
+                    item {
+                        OutlinedCard(
+                            modifier = Modifier
+                                .height(cardHeight)
+                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                            shape = RoundedCornerShape(16.dp),
+                            onClick = onNavigateToCombiner
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.combine_svgrepo_com),
+                                    contentDescription = "Combine PDFs",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Combine PDFs",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Merge multiple PDF files into one",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        OutlinedCard(
+                            modifier = Modifier
+                                .height(cardHeight)
+                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                            shape = RoundedCornerShape(16.dp),
+                            onClick = onNavigateToConverter
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Transform,
+                                    contentDescription = "Convert to PDF",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Convert to PDF",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Convert images and documents to PDF",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        OutlinedCard(
+                            modifier = Modifier
+                                .height(cardHeight)
+                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                            shape = RoundedCornerShape(16.dp),
+                            onClick = onNavigateToSplitter
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Splitscreen,
+                                    contentDescription = "Split PDF",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Split PDF",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Split PDF into individual pages",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        OutlinedCard(
+                            modifier = Modifier
+                                .height(cardHeight)
+                                .pointerHoverIcon(icon = PointerIcon.Hand),
+                            shape = RoundedCornerShape(16.dp),
+                            onClick = onNavigateToSelectiveSplitter
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ViewArray,
+                                    contentDescription = "Split Range",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Split Range",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Extract specific page range from PDF",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                OutlinedCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(cardHeight)
-                        //.width(cardWidth)
-                        .pointerHoverIcon(icon = PointerIcon.Hand),
-                    shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToConverter
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Transform,
-                            contentDescription = "Convert to PDF",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Convert to PDF",
-                            style = MaterialTheme.typography.titleLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Convert images and documents to PDF",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                OutlinedCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(cardHeight)
-                        .pointerHoverIcon(icon = PointerIcon.Hand),
-                    shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToSplitter
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Splitscreen,
-                            contentDescription = "Split PDF",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Split PDF",
-                            style = MaterialTheme.typography.titleLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Split PDF into individual pages",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 }
