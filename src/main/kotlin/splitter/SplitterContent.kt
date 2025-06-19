@@ -24,6 +24,7 @@ import deskit.dialogs.InfoDialog
 import deskit.dialogs.file.FileChooserDialog
 import deskit.dialogs.file.FolderChooserDialog
 import kotlinx.coroutines.delay
+import splitter.formatFileSize
 
 @Composable
 fun SplitterContent(
@@ -148,7 +149,12 @@ fun SplitterContent(
                             )
                             Text(
                                 text = "Size: ${formatFileSize(uiState.selectedFile!!.length())}",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = "Total pages: ${uiState.totalPages.takeIf { it > 0 } ?: "Unknown"}",
+                                color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }

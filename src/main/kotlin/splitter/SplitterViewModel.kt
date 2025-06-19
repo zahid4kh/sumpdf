@@ -467,8 +467,11 @@ class SplitterViewModel(
 
     private fun addPdfFile(file: File) {
         if (file.extension.lowercase() == "pdf") {
+            val document: PDDocument = Loader.loadPDF(file)
+            val numOfPages = document.numberOfPages
             _uiState.value = _uiState.value.copy(
                 selectedFile = file,
+                totalPages = numOfPages,
                 outputFileName = "${file.nameWithoutExtension}_",
                 errorMessage = null,
                 extractedPages = emptyList()
