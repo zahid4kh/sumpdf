@@ -18,6 +18,8 @@ import org.apache.pdfbox.multipdf.PDFMergerUtility
 import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import sumpdf.BuildConfig
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class CombinerViewModel(
     private val database: Database,
@@ -61,21 +63,25 @@ class CombinerViewModel(
     }
 
     private fun showFileChooser() {
+        log("(showFileChooser) Opening file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = true)
     }
 
     private fun hideFileChooser() {
+        log("(hideFileChooser) Closing file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = false)
     }
 
     private fun addPdf(file: File) {
         if (file.extension.lowercase() == "pdf") {
             val newPdfFile = PdfFile.from(file)
+            log("(addPdf) Added PDF: ${file.name}")
             _state.value = _state.value.copy(
                 pdfFiles = _state.value.pdfFiles + newPdfFile,
                 errorMessage = null
             )
         } else {
+            log("(addPdf) Error: Invalid file type - ${file.name}")
             _state.value = _state.value.copy(
                 errorMessage = "Please select a valid PDF file."
             )
@@ -86,19 +92,23 @@ class CombinerViewModel(
 
     private fun showFileSaver() {
         if (_state.value.pdfFiles.isEmpty()) {
+            log("(showFileSaver) Error: No PDF files to save")
             _state.value = _state.value.copy(errorMessage = "Please add at least one PDF file.")
             _uiState.value = _uiState.value.copy(showErrorDialog = true)
             return
         }
+        log("(showFileSaver) Opening file saver dialog")
         _uiState.value = _uiState.value.copy(showFileSaver = true)
     }
 
     private fun hideFileSaver() {
+        log("(hideFileSaver) Closing file saver dialog")
         _uiState.value = _uiState.value.copy(showFileSaver = false)
     }
 
     private fun combinePdfs() {
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+        log("(combinePdfs) Starting combine operation with ${_state.value.pdfFiles.size} PDFs")
 
         scope.launch {
             try {
@@ -107,12 +117,14 @@ class CombinerViewModel(
                     val merger = PDFMergerUtility()
 
                     _state.value.pdfFiles.forEach { pdfFile ->
+                        log("(combinePdfs) Adding to merger: ${File(pdfFile.path).name}")
                         merger.addSource(File(pdfFile.path))
                     }
 
                     merger.destinationFileName = outputFile.absolutePath
                     merger.mergeDocuments(null, CompressParameters(500))
 
+                    log("(combinePdfs) Successfully combined PDFs to: ${outputFile.name}")
                     _state.value = _state.value.copy(
                         isLoading = false,
                         successMessage = "PDFs combined successfully!\nSaved to: ${outputFile.absolutePath}"
@@ -136,12 +148,14 @@ class CombinerViewModel(
     }
 
     private fun removePdf(pdfFile: PdfFile) {
+        log("(removePdf) Removed PDF: ${File(pdfFile.path).name}")
         _state.value = _state.value.copy(
             pdfFiles = _state.value.pdfFiles.filter { it.id != pdfFile.id }
         )
     }
 
     private fun clearAll() {
+        log("(clearAll) Clearing all PDF files (${_state.value.pdfFiles.size} files)")
         _state.value = _state.value.copy(pdfFiles = emptyList())
     }
 
@@ -150,15 +164,18 @@ class CombinerViewModel(
         if (fromIndex in currentList.indices && toIndex in currentList.indices) {
             val item = currentList.removeAt(fromIndex)
             currentList.add(toIndex, item)
+            log("(reorderPdfs) Reordered PDF from index $fromIndex to $toIndex")
             _state.value = _state.value.copy(pdfFiles = currentList)
         }
     }
 
     private fun setOutputFileName(name: String) {
+        log("(setOutputFileName) Output filename set to: $name")
         _state.value = _state.value.copy(outputFileName = name)
     }
 
     private fun clearMessages() {
+        log("(clearMessages) Clearing error and success messages")
         _state.value = _state.value.copy(
             errorMessage = null,
             successMessage = null
@@ -166,30 +183,36 @@ class CombinerViewModel(
     }
 
     private fun showSuccessDialog() {
+        log("(showSuccessDialog) Showing success dialog")
         _uiState.value = _uiState.value.copy(showSuccessDialog = true)
     }
 
     private fun hideSuccessDialog() {
+        log("(hideSuccessDialog) Hiding success dialog and clearing messages")
         _uiState.value = _uiState.value.copy(showSuccessDialog = false)
         clearMessages()
     }
 
     private fun showErrorDialog() {
+        log("(showErrorDialog) Showing error dialog")
         _uiState.value = _uiState.value.copy(showErrorDialog = true)
     }
 
     private fun hideErrorDialog() {
+        log("(hideErrorDialog) Hiding error dialog and clearing messages")
         _uiState.value = _uiState.value.copy(showErrorDialog = false)
         clearMessages()
     }
 
     fun onSaveFileSelected(file: File) {
+        log("(onSaveFileSelected) File selected for saving: ${file.name}")
         _uiState.value = _uiState.value.copy(selectedSaveFile = file)
         handleIntent(PdfCombinerIntent.CombinePdfs)
     }
 
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
+        log("(toggleDarkMode) Switching to ${if (newDarkMode) "dark" else "light"} mode")
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
 
         scope.launch {
@@ -199,6 +222,7 @@ class CombinerViewModel(
     }
 
     private fun checkForUpdates() {
+        log("(checkForUpdates) Starting update check")
         _uiState.value = _uiState.value.copy(
             isCheckingUpdates = true,
             showNewUpdatesDialog = true,
@@ -213,8 +237,10 @@ class CombinerViewModel(
                 .build()
 
             try {
+                log("(checkForUpdates) Making API request to GitHub")
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
+                        log("(checkForUpdates) API request failed with HTTP ${response.code}")
                         scope.launch(Dispatchers.Main) {
                             _uiState.value = _uiState.value.copy(
                                 isCheckingUpdates = false,
@@ -234,12 +260,14 @@ class CombinerViewModel(
                         val latest = Semver(latestTag.replace("^v", ""))
                         scope.launch(Dispatchers.Main) {
                             if (latest.isGreaterThan(current)) {
+                                log("(checkForUpdates) New version available: $latestTag (current: ${BuildConfig.VERSION_NAME})")
                                 _uiState.value = _uiState.value.copy(
                                     isCheckingUpdates = false,
                                     updateMessage = "New version available: $latestTag. Download the latest version from GitHub.",
                                     isUpdateAvailable = true
                                 )
                             } else {
+                                log("(checkForUpdates) Already using latest version: ${BuildConfig.VERSION_NAME}")
                                 _uiState.value = _uiState.value.copy(
                                     isCheckingUpdates = false,
                                     updateMessage = "You are using the latest version: ${BuildConfig.VERSION_NAME}",
@@ -248,6 +276,7 @@ class CombinerViewModel(
                             }
                         }
                     } else {
+                        log("(checkForUpdates) No version tags found in repository")
                         scope.launch(Dispatchers.Main) {
                             _uiState.value = _uiState.value.copy(
                                 isCheckingUpdates = false,
@@ -258,6 +287,7 @@ class CombinerViewModel(
                     }
                 }
             } catch (e: Exception) {
+                log("(checkForUpdates) Error during update check: ${e.message}")
                 scope.launch(Dispatchers.Main) {
                     _uiState.value = _uiState.value.copy(
                         isCheckingUpdates = false,
@@ -270,6 +300,7 @@ class CombinerViewModel(
     }
 
     fun hideNewUpdatesDialog() {
+        log("(hideNewUpdatesDialog) Hiding update dialog")
         _uiState.value = _uiState.value.copy(
             showNewUpdatesDialog = false,
             isCheckingUpdates = false,
@@ -278,6 +309,12 @@ class CombinerViewModel(
         )
     }
 
+    private fun log(message: String) {
+        val timestamp = LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")
+        )
+        println("[$timestamp] [${this::class.simpleName}] $message")
+    }
 
     data class UiState(
         val darkMode: Boolean = false,
