@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "SumPDF",
   description:
-    "Your all-in-one PDF tool. Effortlessly combine multiple PDF files and convert SVG, PNG, JPG, JPEG, ODT, DOC, DOCX files to PDFs. Free and open-source.",
+    "SumPDF is your comprehensive, all-in-one PDF solution. Effortlessly combine multiple PDF files and convert various document types (SVG, PNG, JPG, JPEG, ODT, DOC, DOCX) to PDF. Enhance your PDF workflow by extracting specific pages, splitting files by range, deleting selected pages, reordering pages to your preference, and merging the remaining pages into a new document. All features are free and open-source.",
   icons: {
     icon: [
       {
@@ -24,11 +24,23 @@ export const metadata: Metadata = {
     "PDF",
     "PDF merger",
     "PDF converter",
+    "combine PDF",
+    "convert to PDF",
+    "extract PDF pages",
+    "split PDF",
+    "PDF splitter",
+    "delete PDF pages",
+    "remove PDF pages",
+    "reorder PDF pages",
+    "arrange PDF pages",
+    "merge PDF pages",
+    "PDF page management",
+    "manage PDF pages",
+    "PDF page editor",
     "document tools",
     "open source",
     "free PDF tool",
-    "combine PDF",
-    "convert to PDF",
+    "PDF utilities",
   ],
   authors: [{ name: "SumPDF" }],
   creator: "SumPDF",
