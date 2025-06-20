@@ -418,7 +418,7 @@ class SelectiveSplitterViewModel(
         if (currentIndex > 0) {
             currentPages.removeAt(currentIndex)
             currentPages.add(currentIndex - 1, page)
-            _uiState.value = _uiState.value.copy(extractedPages = currentPages)
+            _uiState.value = _uiState.value.copy(extractedPages = currentPages, moveDirection = "left")
         }
     }
 
@@ -428,7 +428,7 @@ class SelectiveSplitterViewModel(
         if (currentIndex < currentPages.size - 1) {
             currentPages.removeAt(currentIndex)
             currentPages.add(currentIndex + 1, page)
-            _uiState.value = _uiState.value.copy(extractedPages = currentPages)
+            _uiState.value = _uiState.value.copy(extractedPages = currentPages, moveDirection = "right")
         }
     }
 
