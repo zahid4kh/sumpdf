@@ -1,6 +1,7 @@
 package splitter
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -189,19 +190,37 @@ fun SplitterContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(uiState.extractedPages) { page ->
-                            ExtractedPageCard(
-                                page = page,
-                                showReorderButtons = uiState.splitMode == SplitMode.MERGE_PAGES,
-                                canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
-                                canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
-                                onDelete = { viewModel.handleIntent(SplitterIntent.StartDeleteAnimation(page)) },
-                                onMoveLeft = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "left")) },
-                                onMoveRight = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "right")) },
-                                isAnimatingDelete = uiState.animatingDeletePageId == page.id,
-                                isAnimatingMove = uiState.animatingMovePageId == page.id,
-                                moveDirection = uiState.moveDirection
-                            )
+                        items(
+                            items = uiState.extractedPages,
+                            key = { it.id }
+                        ) { page ->
+                            val isNewPage = uiState.animatingNewPageIds.contains(page.id)
+
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = true,
+                                enter = if (isNewPage) {
+                                    scaleIn(
+                                        initialScale = 0.3f,
+                                        animationSpec = tween(600)
+                                    ) + fadeIn(animationSpec = tween(600))
+                                } else {
+                                    scaleIn(initialScale = 1f, animationSpec = tween(0))
+                                },
+                                modifier = Modifier.animateItem(placementSpec = tween(300))
+                            ) {
+                                ExtractedPageCard(
+                                    page = page,
+                                    showReorderButtons = uiState.splitMode == SplitMode.MERGE_PAGES,
+                                    canMoveLeft = uiState.extractedPages.indexOf(page) > 0,
+                                    canMoveRight = uiState.extractedPages.indexOf(page) < uiState.extractedPages.size - 1,
+                                    onDelete = { viewModel.handleIntent(SplitterIntent.StartDeleteAnimation(page)) },
+                                    onMoveLeft = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "left")) },
+                                    onMoveRight = { viewModel.handleIntent(SplitterIntent.StartMoveAnimation(page, "right")) },
+                                    isAnimatingDelete = uiState.animatingDeletePageId == page.id,
+                                    isAnimatingMove = uiState.animatingMovePageId == page.id,
+                                    moveDirection = uiState.moveDirection
+                                )
+                            }
                         }
                     }
                 }

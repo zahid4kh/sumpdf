@@ -79,7 +79,9 @@ class SplitterViewModel(
             isSplitting = true,
             splitProgress = 0f,
             currentPageInfo = "Initializing...",
-            errorMessage = null
+            errorMessage = null,
+            extractedPages = emptyList(),
+            animatingNewPageIds = emptySet()
         )
 
         scope.launch {
@@ -158,7 +160,7 @@ class SplitterViewModel(
                         tempDir.mkdirs()
                         println("Temp directory: $tempDir")
 
-                        val extractedPages = pages.mapIndexed { index, pageDoc ->
+                        pages.forEachIndexed { index, pageDoc ->
                             val pageNumber = index + 1
                             val fileName = "${outputPrefix}page_$pageNumber.pdf"
 
@@ -174,15 +176,36 @@ class SplitterViewModel(
                             val fileSize = tempFile.length()
                             pageDoc.close()
 
-                            delay(150)
-
-                            ExtractedPage(
+                            val newPage = ExtractedPage(
                                 id = UUID.randomUUID().toString(),
                                 pageNumber = pageNumber,
                                 fileName = fileName,
                                 tempFilePath = tempFile.absolutePath,
                                 size = fileSize
                             )
+
+                            withContext(Dispatchers.Main) {
+                                val currentPages = _uiState.value.extractedPages.toMutableList()
+                                currentPages.add(newPage)
+                                val newAnimatingIds = _uiState.value.animatingNewPageIds.toMutableSet()
+                                newAnimatingIds.add(newPage.id)
+
+                                _uiState.value = _uiState.value.copy(
+                                    extractedPages = currentPages,
+                                    animatingNewPageIds = newAnimatingIds
+                                )
+
+                                scope.launch {
+                                    delay(600)
+                                    val updatedAnimatingIds = _uiState.value.animatingNewPageIds.toMutableSet()
+                                    updatedAnimatingIds.remove(newPage.id)
+                                    _uiState.value = _uiState.value.copy(
+                                        animatingNewPageIds = updatedAnimatingIds
+                                    )
+                                }
+                            }
+
+                            delay(150)
                         }
 
                         document.close()
@@ -191,7 +214,6 @@ class SplitterViewModel(
                             _uiState.value = _uiState.value.copy(
                                 isSplitting = false,
                                 splitProgress = 1f,
-                                extractedPages = extractedPages,
                                 currentPageInfo = null,
                                 successMessage = "Successfully extracted $totalPages pages! Review and manage pages below."
                             )
@@ -605,6 +627,7 @@ class SplitterViewModel(
         val extractedPages: List<ExtractedPage> = emptyList(),
         val animatingDeletePageId: String? = null,
         val animatingMovePageId: String? = null,
-        val moveDirection: String? = null
+        val moveDirection: String? = null,
+        val animatingNewPageIds: Set<String> = emptySet()
     )
 }
