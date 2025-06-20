@@ -19,6 +19,8 @@ import org.jodconverter.local.LocalConverter
 import org.jodconverter.local.office.LocalOfficeManager
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.imageio.ImageIO
@@ -38,6 +40,7 @@ class PDFConverter : Converter {
 
     override suspend fun convert(task: ConversionTask): ConversionResult {
         val inputFile = File(task.inputFilePath)
+        log("(convert) Starting conversion: ${inputFile.name} -> ${inputFile.extension.lowercase()}")
         if (!inputFile.exists()) {
             return ConversionResult(task, false, "Input file does not exist")
         }
@@ -58,11 +61,13 @@ class PDFConverter : Converter {
             }
 
             if (outputFile.exists() && outputFile.length() > 0) {
+                log("(convert) Conversion successful: ${inputFile.name}")
                 ConversionResult(task.copy(outputFilePath = outputFile.absolutePath, status = ConversionStatus.COMPLETED), true)
             } else {
                 ConversionResult(task.copy(status = ConversionStatus.FAILED, error = "Output file was not created properly"), false, "Output file was not created properly")
             }
         } catch (e: Exception) {
+            log("(convert) Conversion failed: ${inputFile.name} - ${e.message}")
             e.printStackTrace()
             if (outputFile.exists()) {
                 outputFile.delete()
@@ -75,15 +80,18 @@ class PDFConverter : Converter {
         val inputFile = File(inputPath)
         val parentDir = inputFile.parentFile
         val baseName = inputFile.nameWithoutExtension
-
-        return File(parentDir, "$baseName.pdf").absolutePath
+        val outputPath = File(parentDir, "$baseName.pdf").absolutePath
+        log("(determineOutputPath) Output path determined: $outputPath")
+        return outputPath
     }
 
     private fun convertTextToPdf(inputFile: File, outputFile: File) {
+        log("(convertTextToPdf) Converting text file: ${inputFile.name}")
         PDDocument().use { document ->
             val text = inputFile.readText(Charsets.UTF_8)
             val cleanedText = cleanTextForPdf(text)
             val lines = cleanedText.split("\n")
+            log("(convertTextToPdf) Processing ${lines.size} lines of text")
 
             val font = COURIER_FONT
             val fontSize = 10f
@@ -162,6 +170,7 @@ class PDFConverter : Converter {
                 }
             }
             document.save(outputFile)
+            log("(convertTextToPdf) Successfully saved text PDF: ${outputFile.name}")
         }
     }
 
@@ -235,6 +244,7 @@ class PDFConverter : Converter {
     }
 
     private fun convertImageToPdf(inputFile: File, outputFile: File) {
+        log("(convertImageToPdf) Converting image file: ${inputFile.name}")
         PDDocument().use { document ->
             val image = ImageIO.read(inputFile)
             val pdImage = PDImageXObject.createFromFile(inputFile.absolutePath, document)
@@ -244,6 +254,8 @@ class PDFConverter : Converter {
             val pageWidth = PDRectangle.A4.width
             val pageHeight = pageWidth * imgHeight / imgWidth
 
+            log("(convertImageToPdf) Image dimensions: ${imgWidth}x${imgHeight}, PDF page: ${pageWidth}x${pageHeight}")
+
             val page = PDPage(PDRectangle(pageWidth, pageHeight))
             document.addPage(page)
 
@@ -252,26 +264,31 @@ class PDFConverter : Converter {
             }
 
             document.save(outputFile)
+            log("(convertImageToPdf) Successfully saved image PDF: ${outputFile.name}")
         }
     }
 
     private fun convertSvgToPdf(inputFile: File, outputFile: File) {
+        log("(convertSvgToPdf) Converting SVG file: ${inputFile.name}")
         val tempPng = File.createTempFile("svg_conv", ".png")
         tempPng.deleteOnExit()
 
         try {
+            log("(convertSvgToPdf) Transcoding SVG to PNG: ${tempPng.name}")
             val input = TranscoderInput(inputFile.toURI().toString())
             val output = TranscoderOutput(FileOutputStream(tempPng))
             val transcoder = PNGTranscoder()
             transcoder.transcode(input, output)
 
             convertImageToPdf(tempPng, outputFile)
+            log("(convertSvgToPdf) Successfully converted SVG via PNG intermediate")
         } finally {
             tempPng.delete()
         }
     }
 
     private fun convertOfficeToPdf(inputFile: File, outputFile: File) {
+        log("(convertOfficeToPdf) Converting office document: ${inputFile.name} (${inputFile.extension.uppercase()})")
         val officeManager = LocalOfficeManager.builder()
             .install()
             .processTimeout(30000L)
@@ -281,6 +298,7 @@ class PDFConverter : Converter {
             .build()
 
         try {
+            log("(convertOfficeToPdf) Starting LibreOffice manager")
             officeManager.start()
             Thread.sleep(1000)
 
@@ -289,9 +307,12 @@ class PDFConverter : Converter {
                 .formatRegistry(createCustomFormatRegistry())
                 .build()
 
+            log("(convertOfficeToPdf) Executing conversion with LibreOffice")
             converter.convert(inputFile)
                 .to(outputFile)
                 .execute()
+
+            log("(convertOfficeToPdf) Successfully converted office document")
 
         } catch (e: OfficeException) {
             val fileType = when (inputFile.extension.lowercase()) {
@@ -300,9 +321,11 @@ class PDFConverter : Converter {
                 "odt" -> "OpenDocument Text (ODT)"
                 else -> "${inputFile.extension.uppercase()} document"
             }
+            log("(convertOfficeToPdf) Failed to convert $fileType: ${e.message}")
             throw RuntimeException("Failed to convert $fileType: ${e.message}", e)
         } finally {
             try {
+                log("(convertOfficeToPdf) Stopping LibreOffice manager")
                 officeManager.stop()
                 Thread.sleep(500)
             } catch (e: Exception) {}
@@ -388,6 +411,13 @@ class PDFConverter : Converter {
     )
     private fun convertOdtToPdf(inputFile: File, outputFile: File) {
         convertOfficeToPdf(inputFile, outputFile)
+    }
+
+    private fun log(message: String) {
+        val timestamp = LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")
+        )
+        println("[$timestamp] [${this::class.simpleName}] $message")
     }
 }
 
