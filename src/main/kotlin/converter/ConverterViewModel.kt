@@ -11,6 +11,8 @@ import kotlinx.coroutines.withContext
 import model.ConversionResult
 import model.FileItem
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.filter
 import kotlin.collections.map
@@ -50,12 +52,14 @@ class ConverterViewModel(
     fun addFiles(files: List<File>) {
         val currentFiles = _uiState.value.files.toMutableList()
         val newFiles = files.map { FileItem(it) }
+        log("(addFiles) Added ${files.size} files for conversion")
 
         currentFiles.addAll(newFiles)
         _uiState.value = _uiState.value.copy(files = currentFiles)
     }
 
     fun removeFile(file: FileItem) {
+        log("(removeFile) Removing file: ${file.file.name}")
         val updatedFiles = _uiState.value.files.toMutableList()
         updatedFiles.remove(file)
         _uiState.value = _uiState.value.copy(files = updatedFiles)
@@ -65,13 +69,16 @@ class ConverterViewModel(
         val updatedFiles = _uiState.value.files.toMutableList()
         val index = updatedFiles.indexOf(file)
         if (index >= 0) {
-            updatedFiles[index] = file.copy(isSelected = !file.isSelected)
+            val newSelectionState = !file.isSelected
+            log("(toggleFileSelection) ${if (newSelectionState) "Selected" else "Deselected"} file: ${file.file.name}")
+            updatedFiles[index] = file.copy(isSelected = newSelectionState)
             _uiState.value = _uiState.value.copy(files = updatedFiles)
         }
     }
 
     fun selectOutputPath(path: String?) {
         if (path != null) {
+            log("(selectOutputPath) Output path set to: $path")
             val recentPaths = _uiState.value.recentOutputPaths.toMutableList()
 
             if (path !in recentPaths) {
@@ -100,6 +107,7 @@ class ConverterViewModel(
     }
 
     fun selectDownloadsFolder(){
+        log("(selectDownloadsFolder) Selected Downloads folder as output path")
         _uiState.value = _uiState.value.copy(
             isDownloadsPathSelected = true,
             isCustomPathSelected = false,
@@ -108,6 +116,7 @@ class ConverterViewModel(
     }
 
     fun selectCustomPath(){
+        log("(selectCustomPath) Selected custom path option")
         _uiState.value = _uiState.value.copy(
             isCustomPathSelected = true,
             isDownloadsPathSelected = false
@@ -115,6 +124,7 @@ class ConverterViewModel(
     }
 
     fun setLastUsedDirectory(path: String) {
+        log("(setLastUsedDirectory) Last used directory set to: $path")
         _uiState.value = _uiState.value.copy(lastUsedDirectory = path)
 
         scope.launch {
@@ -124,24 +134,29 @@ class ConverterViewModel(
     }
 
     fun showFileChooser() {
+        log("(showFileChooser) Opening file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = true)
     }
 
     fun hideFileChooser() {
+        log("(hideFileChooser) Closing file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = false)
     }
 
     fun showFolderChooser() {
+        log("(showFolderChooser) Opening folder chooser dialog")
         _uiState.value = _uiState.value.copy(showFolderChooser = true)
     }
 
     fun hideFolderChooser() {
+        log("(hideFolderChooser) Closing folder chooser dialog")
         _uiState.value = _uiState.value.copy(showFolderChooser = false)
     }
 
     fun convertFiles() {
         val selectedFiles = _uiState.value.files.filter { it.isSelected }
         if (selectedFiles.isEmpty()) return
+        log("(convertFiles) Starting conversion of ${selectedFiles.size} files")
 
         _uiState.value = _uiState.value.copy(isConverting = true)
 
@@ -169,6 +184,7 @@ class ConverterViewModel(
 
             for ((index, task) in tasks.withIndex()) {
                 val fileName = File(task.inputFilePath).name
+                log("(convertFiles) Converting file ${index + 1}/${tasks.size}: $fileName")
                 _uiState.value = _uiState.value.copy(
                     currentlyConverting = "Converting: $fileName (${index + 1}/${tasks.size})"
                 )
@@ -177,6 +193,11 @@ class ConverterViewModel(
 
                 val result = withContext(Dispatchers.IO) {
                     converter.convert(task)
+                }
+                if (result.success) {
+                    log("(convertFiles) Successfully converted: ${File(task.inputFilePath).name} -> ${File(result.task.outputFilePath!!).name}")
+                } else {
+                    log("(convertFiles) Failed to convert: ${File(task.inputFilePath).name} - ${result.error}")
                 }
                 results.add(result)
 
@@ -197,12 +218,14 @@ class ConverterViewModel(
                 currentlyConverting = null
             )
 
+            log("(convertFiles) Conversion completed: ${results.count { it.success }} successful, ${results.count { !it.success }} failed")
             val allTasks = _uiState.value.previousTasks + _uiState.value.conversionTasks
             database.saveTasks(allTasks)
         }
     }
 
     private fun updateTaskStatus(taskId: String, status: ConversionStatus, error: String? = null) {
+        log("(updateTaskStatus) Task $taskId status updated to: $status${if (error != null) " with error: $error" else ""}")
         val updatedTasks = _uiState.value.conversionTasks.map { task ->
             if (task.id == taskId) {
                 task.copy(status = status, error = error)
@@ -215,15 +238,17 @@ class ConverterViewModel(
 
     private fun determineOutputPath(file: File): String {
         val selectedPath = _uiState.value.selectedOutputPath
-
-        return if (selectedPath != null) {
+        val outputPath = if (selectedPath != null) {
             File(selectedPath, "${file.nameWithoutExtension}.pdf").absolutePath
         } else {
             File(file.parentFile, "${file.nameWithoutExtension}.pdf").absolutePath
         }
+        log("(determineOutputPath) Output path for ${file.name}: $outputPath")
+        return outputPath
     }
 
     fun dismissResultDialog() {
+        log("(dismissResultDialog) Dismissing conversion result dialog")
         val completedTasks = _uiState.value.conversionTasks
         _uiState.value = _uiState.value.copy(
             showResultDialog = false,
@@ -234,14 +259,15 @@ class ConverterViewModel(
     }
 
     fun clearFiles() {
+        log("(clearFiles) Clearing all files (${_uiState.value.files.size} files)")
         _uiState.value = _uiState.value.copy(files = emptyList())
     }
 
-    fun clearTaskHistory() {
-        _uiState.value = _uiState.value.copy(previousTasks = emptyList())
-        scope.launch {
-            database.saveTasks(emptyList())
-        }
+    private fun log(message: String) {
+        val timestamp = LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")
+        )
+        println("[$timestamp] [${this::class.simpleName}] $message")
     }
 
     data class UiState(
