@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.hotReload)
 }
-val appPackageVersion = "1.2.2"
+val appPackageVersion = "1.3.0"
 group = "zahid4kh.sumpdf"
 version = appPackageVersion
 
