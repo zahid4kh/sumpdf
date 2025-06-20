@@ -132,7 +132,12 @@ export default function SumPDFWebsite() {
         className={`border-b ${themeClasses.border} px-6 py-4 sticky top-0 ${themeClasses.bg} z-50 b-xl`}
       >
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">SumPDF</h1>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            SumPDF
+            <span className="text-xs font-normal opacity-70 align-middle ml-2">
+              v{APP_VERSION}
+            </span>
+          </h1>
         </div>
       </header>
 
