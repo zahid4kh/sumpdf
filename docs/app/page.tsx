@@ -564,7 +564,7 @@ export default function SumPDFWebsite() {
                             </h4>
                             <CodeBlock id="linux-apt-install">
                               {`sudo apt update
-sudo apt install pwdgen sumpdf`}
+sudo apt install sumpdf`}
                             </CodeBlock>
                           </div>
                         </div>
