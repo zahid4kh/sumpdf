@@ -1,6 +1,7 @@
 package selectivesplitter
 
 import Database
+import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,6 +17,8 @@ import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import org.apache.pdfbox.text.PDFTextStripper
 import java.io.File
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class SelectiveSplitterViewModel(
@@ -59,6 +62,7 @@ class SelectiveSplitterViewModel(
         val startPage = _uiState.value.startPage.toIntOrNull()
         val endPage = _uiState.value.endPage.toIntOrNull()
         val outputPrefix = _uiState.value.outputFileName
+        log("(extractPages) Starting extraction: pages $startPage-$endPage from ${selectedFile?.name}")
 
         if (selectedFile == null) {
             _uiState.value = _uiState.value.copy(
@@ -105,6 +109,7 @@ class SelectiveSplitterViewModel(
             try {
                 withContext(Dispatchers.IO) {
                     val document: PDDocument = Loader.loadPDF(selectedFile)
+                    log("(extractPages) Starting page extraction from page $startPage to $endPage")
                     val totalPagesToExtract = endPage - startPage + 1
 
                     withContext(Dispatchers.Main) {
@@ -195,6 +200,7 @@ class SelectiveSplitterViewModel(
     private fun saveExtractedPages() {
         val outputPath = _uiState.value.outputFileDestination
         val extractedPages = _uiState.value.extractedPages
+        log("(saveExtractedPages) Starting to save ${extractedPages.size} pages to: $outputPath")
 
         if (outputPath.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
@@ -242,6 +248,7 @@ class SelectiveSplitterViewModel(
                             }
 
                             tempFile.copyTo(outputFile, overwrite = true)
+                            log("(saveExtractedPages) Saved: ${page.fileName}")
                             successCount++
 
                             delay(300)
@@ -263,6 +270,7 @@ class SelectiveSplitterViewModel(
                     }
 
                     withContext(Dispatchers.Main) {
+                        log("(saveExtractedPages) Completed: $successCount saved, $failureCount failed")
                         if (failureCount == 0) {
                             _uiState.value = _uiState.value.copy(
                                 isSaving = false,
@@ -298,6 +306,7 @@ class SelectiveSplitterViewModel(
         val outputPath = _uiState.value.outputFileDestination
         val extractedPages = _uiState.value.extractedPages
         val outputPrefix = _uiState.value.outputFileName
+        log("(mergeAndSavePages) Starting merge of ${extractedPages.size} pages")
 
         if (outputPath.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
@@ -331,6 +340,7 @@ class SelectiveSplitterViewModel(
 
                     val mergedFileName = "${outputPrefix}merged_range.pdf"
                     val outputFile = File(outputDir, mergedFileName)
+                    log("(mergeAndSavePages) Merging to: ${outputFile.name}")
 
                     withContext(Dispatchers.Main) {
                         _uiState.value = _uiState.value.copy(
@@ -379,6 +389,7 @@ class SelectiveSplitterViewModel(
                     delay(300)
 
                     withContext(Dispatchers.Main) {
+                        log("(mergeAndSavePages) Successfully merged ${extractedPages.size} pages")
                         _uiState.value = _uiState.value.copy(
                             isMerging = false,
                             mergeProgress = 1f,
@@ -404,6 +415,7 @@ class SelectiveSplitterViewModel(
     private fun deleteExtractedPage(page: ExtractedPage) {
         val currentPages = _uiState.value.extractedPages.toMutableList()
         currentPages.remove(page)
+        log("(deleteExtractedPage) Deleted page: ${page.fileName}")
 
         try {
             File(page.tempFilePath).delete()
@@ -418,6 +430,7 @@ class SelectiveSplitterViewModel(
         if (currentIndex > 0) {
             currentPages.removeAt(currentIndex)
             currentPages.add(currentIndex - 1, page)
+            log("(movePageLeft) Moved ${page.fileName} from index $currentIndex to ${currentIndex - 1}")
             _uiState.value = _uiState.value.copy(extractedPages = currentPages, moveDirection = "left")
         }
     }
@@ -428,6 +441,7 @@ class SelectiveSplitterViewModel(
         if (currentIndex < currentPages.size - 1) {
             currentPages.removeAt(currentIndex)
             currentPages.add(currentIndex + 1, page)
+            log("(movePageRight) Moved ${page.fileName} from index $currentIndex to ${currentIndex + 1}")
             _uiState.value = _uiState.value.copy(extractedPages = currentPages, moveDirection = "right")
         }
     }
@@ -437,6 +451,7 @@ class SelectiveSplitterViewModel(
             try {
                 val document: PDDocument = Loader.loadPDF(file)
                 val numOfPages = document.numberOfPages
+                log("(addPdfFile) Loading PDF: ${file.name}, Pages: $numOfPages")
                 document.close()
 
                 _uiState.value = _uiState.value.copy(
@@ -448,6 +463,7 @@ class SelectiveSplitterViewModel(
                     startPage = "1",
                     endPage = numOfPages.toString()
                 )
+                log("(addPdfFile) Successfully added PDF: ${file.name} with $numOfPages pages")
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Failed to load PDF: ${e.message}"
@@ -464,18 +480,22 @@ class SelectiveSplitterViewModel(
     }
 
     private fun selectOutputPath(path: String) {
+        log("(selectOutputPath) Output path set to: $path")
         _uiState.value = _uiState.value.copy(outputFileDestination = path)
     }
 
     private fun setOutputFileName(name: String) {
+        log("(setOutputFileName) Output filename set to: $name")
         _uiState.value = _uiState.value.copy(outputFileName = name)
     }
 
     private fun setStartPage(page: String) {
+        log("(setStartPage) Start page set to: $page")
         _uiState.value = _uiState.value.copy(startPage = page)
     }
 
     private fun setEndPage(page: String) {
+        log("(setEndPage) End page set to: $page")
         _uiState.value = _uiState.value.copy(endPage = page)
     }
 
@@ -525,6 +545,7 @@ class SelectiveSplitterViewModel(
     }
 
     private fun clearMessages() {
+        log("(clearMessages) Clearing error and success messages")
         _uiState.value = _uiState.value.copy(
             errorMessage = null,
             successMessage = null
@@ -532,38 +553,53 @@ class SelectiveSplitterViewModel(
     }
 
     private fun showFileChooser() {
+        log("(showFileChooser) Opening file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = true)
     }
 
     private fun hideFileChooser() {
+        log("(hideFileChooser) Closing file chooser dialog")
         _uiState.value = _uiState.value.copy(showFileChooser = false)
     }
 
     private fun showFolderChooser() {
+        log("(showFolderChooser) Opening folder chooser dialog")
         _uiState.value = _uiState.value.copy(showFolderChooser = true)
     }
 
     private fun hideFolderChooser() {
+        log("(hideFolderChooser) Closing folder chooser dialog")
         _uiState.value = _uiState.value.copy(showFolderChooser = false)
     }
 
     private fun showSuccessDialog() {
+        log("(showSuccessDialog) Showing success dialog")
         _uiState.value = _uiState.value.copy(showSuccessDialog = true)
     }
 
     private fun hideSuccessDialog() {
+        log("(hideSuccessDialog) Hiding success dialog and resetting state")
         _uiState.value = _uiState.value.copy(showSuccessDialog = false)
         clearMessages()
         _uiState.value = UiState()
     }
 
     private fun showErrorDialog() {
+        log("(showErrorDialog) Showing error dialog")
         _uiState.value = _uiState.value.copy(showErrorDialog = true)
     }
 
     private fun hideErrorDialog() {
+        log("(hideErrorDialog) Hiding error dialog and clearing messages")
         _uiState.value = _uiState.value.copy(showErrorDialog = false)
         clearMessages()
+    }
+
+    private fun log(message: String) {
+        val timestamp = LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")
+        )
+        println("[$timestamp] [${this::class.simpleName}] $message")
     }
 
     data class UiState(
