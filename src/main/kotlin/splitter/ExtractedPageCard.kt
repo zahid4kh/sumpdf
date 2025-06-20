@@ -49,11 +49,6 @@ fun ExtractedPageCard(
     moveDirection: String? = null
 ) {
     var isHovered by remember { mutableStateOf(false) }
-    val density = LocalDensity.current.density
-
-    LaunchedEffect(Unit){
-        println("density: $density")
-    }
 
     val scale by animateFloatAsState(
         targetValue = when {
