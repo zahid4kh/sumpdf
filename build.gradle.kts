@@ -319,7 +319,7 @@ set -e
 # for details, see https://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-case "${"$"}1" in
+case "$1" in
     configure)
         # Install desktop menu entry
         xdg-desktop-menu install /opt/$packageName/lib/$packageName-$packageName.desktop
@@ -335,7 +335,7 @@ case "${"$"}1" in
     ;;
 
     *)
-        echo "postinst called with unknown argument \`${"$"}1'" >&2
+        echo "postinst called with unknown argument `$1`" >&2
         exit 1
     ;;
 esac
@@ -367,7 +367,7 @@ set -e
 # for details, see https://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-case "${"$"}1" in
+case "$1" in
     remove|upgrade|deconfigure)
         # Remove desktop menu entry
         xdg-desktop-menu uninstall /opt/$packageName/lib/$packageName-$packageName.desktop
@@ -383,7 +383,7 @@ case "${"$"}1" in
     ;;
 
     *)
-        echo "prerm called with unknown argument \`${"$"}1'" >&2
+        echo "prerm called with unknown argument `$1`" >&2
         exit 1
     ;;
 esac
