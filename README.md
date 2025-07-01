@@ -103,7 +103,7 @@ This is the recommended method for Ubuntu/Debian users as it provides automatic 
 ### Manual Linux Installation
 
 ```bash
-sudo dpkg -i sumpdf_1.3.0-1_amd64-wm.deb
+sudo dpkg -i sumpdf_1.3.1-1_amd64-wm.deb
 
 sudo apt install -f
 ```
