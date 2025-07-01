@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import deskit.dialogs.InfoDialog
+import deskit.dialogs.info.InfoDialog
 import model.ConversionResult
 import java.io.File
 

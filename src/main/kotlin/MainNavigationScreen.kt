@@ -1,8 +1,6 @@
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -16,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import combiner.CombinerViewModel
 import combiner.PdfCombinerIntent
-import deskit.dialogs.InfoDialog
+import deskit.dialogs.info.InfoDialog
 import org.jetbrains.compose.resources.painterResource
 import sumpdf.BuildConfig
 import sumpdf.resources.Res
@@ -56,7 +53,7 @@ fun MainNavigationScreen(
             width = 450.dp,
             height = 370.dp,
             title = "About SumPDF",
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            iconTint = MaterialTheme.colorScheme.onSurface,
             onClose = { showAppInfo = false },
             content = {
                 Column(
@@ -110,7 +107,7 @@ fun MainNavigationScreen(
             width = 450.dp,
             height = 320.dp,
             title = "Check for Updates",
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            iconTint = MaterialTheme.colorScheme.onSurface,
             onClose = { viewModel.hideNewUpdatesDialog() },
             content = {
                 Column(

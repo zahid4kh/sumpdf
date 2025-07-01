@@ -23,9 +23,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.dp
 import converter.DragDropArea
-import deskit.dialogs.InfoDialog
-import deskit.dialogs.file.FileChooserDialog
-import deskit.dialogs.file.FolderChooserDialog
+import deskit.dialogs.file.filechooser.FileChooserDialog
+import deskit.dialogs.file.folderchooser.FolderChooserDialog
+import deskit.dialogs.info.InfoDialog
 import kotlinx.coroutines.delay
 import splitter.ExtractedPageCard
 

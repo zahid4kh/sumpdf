@@ -16,9 +16,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import deskit.dialogs.InfoDialog
-import deskit.dialogs.file.FileChooserDialog
-import deskit.dialogs.file.FileSaverDialog
+import deskit.dialogs.file.filechooser.FileChooserDialog
+import deskit.dialogs.file.filesaver.FileSaverDialog
+import deskit.dialogs.info.InfoDialog
 import kotlinx.coroutines.delay
 
 @Composable
